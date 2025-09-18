@@ -13,22 +13,6 @@ My focus is on performance, scalability, and turning cutting-edge research into 
 
 ---
 
-## 💼 Experience  
-
-**Mobile Software Engineer Intern @ Ayon (2025 – Present)**  
-- Built a **3D scanning feature** with ARKit + Lidar, improving nutrient estimation accuracy by 40%  
-- Designed a hybrid AI pipeline with **Core ML + GPT-4o** for rapid food recognition  
-- Deployed scalable backend with **Python, FastAPI, AWS ECS, Supabase**  
-
-**Software Engineer Intern @ Outlier AI (2024)**  
-- Architected a **self-service data intelligence platform** with Python, ECS, API Gateway, Lambda  
-- Reduced API response times from **5s → 200ms**  
-
-**Software Engineer Intern @ CogniCue (2023)**  
-- Built a real-time analytics dashboard, optimized queries, and cut latency by **85%**  
-- Automated deployments with GitHub Actions  
-
----
 
 ## 🛠 Featured Projects  
 
