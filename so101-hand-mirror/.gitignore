@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+models/*.task
+calibration.json
+*.mp4
+tests/data/
