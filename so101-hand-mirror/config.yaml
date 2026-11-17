@@ -1,0 +1,70 @@
+# SO-101 hand mirror configuration. Everything is optional - delete a key to use
+# the default from the code.
+
+# Link lengths in metres (axis centre to axis centre). Defaults are from the
+# SO-101 URDF; measure your arm with a ruler if things look off.
+geometry:
+  base_height: 0.117      # table -> shoulder-lift axis
+  shoulder_offset: 0.030  # pan axis -> shoulder-lift axis (horizontal)
+  upper_arm: 0.116        # shoulder-lift axis -> elbow axis
+  forearm: 0.135          # elbow axis -> wrist-flex axis
+  gripper: 0.100          # wrist-flex axis -> between the jaw tips
+
+# Software joint limits in "model" degrees (see hand_mirror/kinematics.py).
+limits:
+  pan: [-110, 110]
+  shoulder: [5, 160]
+  elbow: [-170, 10]
+  wrist_pitch: [-100, 100]
+  wrist_roll: [-160, 160]
+
+mapping:
+  # Where the gripper goes when your hand is at the neutral position (m / deg).
+  home: {x: 0.24, y: 0.0, z: 0.14, pitch: -20.0, roll: 0.0}
+
+  lateral_gain: 0.45   # m per full image width
+  vertical_gain: 0.40  # m per full image height
+  depth_gain: 0.35     # m per 100% change in hand-camera distance
+  pitch_gain: 1.0
+  roll_gain: 1.0
+
+  # Flip any of these to -1 if an axis moves the wrong way for your setup.
+  lateral_sign: 1
+  vertical_sign: 1
+  depth_sign: 1
+  pitch_sign: 1
+  roll_sign: 1
+
+  track_pitch: true    # false = keep the gripper at home pitch
+  track_roll: true
+
+  # Safety box for the gripper tip (m). Raise z_range[0] if it gets near the table.
+  x_range: [0.10, 0.34]
+  y_range: [-0.25, 0.25]
+  z_range: [0.03, 0.30]
+  pitch_range: [-80, 60]
+  roll_range: [-120, 120]
+
+  # Pinch ratio = thumb-index distance / palm length.
+  pinch_closed: 0.25
+  pinch_open: 0.90
+  # LeRobot gripper units (0..100). Swap these if open/close is reversed.
+  gripper_closed: 2
+  gripper_open: 60
+
+smoothing:
+  min_cutoff: 1.2  # Hz. Lower = smoother but laggier when still
+  beta: 4.0        # Higher = less lag on fast moves
+
+control:
+  hand_prefer: any         # any | Right | Left
+  lost_timeout_s: 0.6      # stop tracking if the hand disappears this long
+  # Max joint speed (motor degrees / second) - the main safety knob.
+  max_speed_deg_s:
+    shoulder_pan: 150
+    shoulder_lift: 150
+    elbow_flex: 150
+    wrist_flex: 200
+    wrist_roll: 250
+    gripper: 300
+  max_relative_target: 25  # LeRobot per-step clamp (deg); null to disable
