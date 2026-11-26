@@ -67,7 +67,7 @@ def api(method: str, path: str, **kw):
             time.sleep(5 * 2 ** attempt)
 
 
-def search(min_ram_gb: int, max_dph: float, gpus: list[str]):
+def search(min_ram_gb: int, max_dph: float, gpus: list[str], bad_machines=()):
     q = {"num_gpus": {"eq": 1}, "rentable": {"eq": True}, "verified": {"eq": True},
          "reliability2": {"gt": 0.98}, "disk_space": {"gt": 120}, "inet_down": {"gt": 300},
          "gpu_ram": {"gte": min_ram_gb * 1000}, "cuda_max_good": {"gte": 12.8},
@@ -77,7 +77,8 @@ def search(min_ram_gb: int, max_dph: float, gpus: list[str]):
     # exclude hosts where Hugging Face / GitHub access is commonly blocked or throttled
     blocked = ("China", ", CN", "Hong Kong")
     offers = [o for o in r.json().get("offers", []) if (not gpus or o.get("gpu_name") in gpus)
-              and not any(b in (o.get("geolocation") or "") for b in blocked)]
+              and not any(b in (o.get("geolocation") or "") for b in blocked)
+              and o.get("machine_id") not in set(bad_machines)]
     return sorted(offers, key=lambda o: o["dph_total"])
 
 
@@ -99,7 +100,7 @@ def save_state(s):
 
 
 def cmd_plan(a):
-    offers = search(a.min_gpu_ram, a.max_dph, a.gpus)
+    offers = search(a.min_gpu_ram, a.max_dph, a.gpus, load_state().get("bad_machine_ids", []))
     if not offers:
         sys.exit("no matching offers")
     for o in offers[:8]:
@@ -141,8 +142,11 @@ def cmd_launch(a):
     if not r.ok:
         sys.exit("create failed (no instance created)")
     iid = r.json().get("new_contract")
-    save_state({"instance_id": iid, "offer_id": best["id"], "gpu": best["gpu_name"], "dph": best["dph_total"],
-                "created": time.time(), "max_usd": a.max_usd, "max_hours": hours, "destroyed": False})
+    prev = load_state()
+    history = prev.get("history", []) + ([{k: prev.get(k) for k in ("instance_id", "gpu", "dph", "created", "destroyed_at", "destroy_reason")}] if prev.get("instance_id") else [])
+    save_state({"instance_id": iid, "offer_id": best["id"], "machine_id": best.get("machine_id"), "gpu": best["gpu_name"],
+                "dph": best["dph_total"], "created": time.time(), "max_usd": a.max_usd, "max_hours": hours, "destroyed": False,
+                "bad_machine_ids": prev.get("bad_machine_ids", []), "history": history})
     print(f"instance {iid} created; run: python scripts/cloud/vast_run.py watch")
 
 

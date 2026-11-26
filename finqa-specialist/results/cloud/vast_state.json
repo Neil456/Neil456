@@ -1,10 +1,25 @@
 {
-  "instance_id": 62706336,
-  "offer_id": 57328786,
+  "instance_id": 62710550,
+  "offer_id": 62381177,
+  "machine_id": 140451,
   "gpu": "A100 SXM4",
-  "dph": 0.6211111111111111,
-  "created": 1795703775.7972026,
-  "max_usd": 8.0,
+  "dph": 0.75,
+  "created": 1795705928.562658,
+  "max_usd": 7.3,
   "max_hours": 8.0,
-  "destroyed": false
+  "destroyed": false,
+  "bad_machine_ids": [
+    154697
+  ],
+  "history": [
+    {
+      "instance_id": 62706336,
+      "gpu": "A100 SXM4",
+      "dph": 0.6211111111111111,
+      "created": 1795703775.7972026,
+      "destroyed_at": 1795705901.830135,
+      "destroy_reason": "stuck in pip install 34 min with idle CPU (suspected host network issue)"
+    }
+  ],
+  "prior_spend_est_usd": 0.65
 }

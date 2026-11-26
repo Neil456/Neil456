@@ -19,9 +19,15 @@ command -v unzip >/dev/null || (apt-get update -qq && apt-get install -y -qq unz
 [ -f repo/finqa-specialist/pyproject.toml ] || git clone -q --depth 1 -b "$BRANCH" "$REPO_URL" repo || { log "FATAL no code"; kill -TERM 1; }
 cd repo/finqa-specialist
 log "GPU: $(nvidia-smi --query-gpu=name,memory.total --format=csv,noheader)"
+log "network preflight"
+for u in https://pypi.org/simple/trl/ https://github.com https://huggingface.co/api/models/Qwen/Qwen3.5-9B https://data.sec.gov; do
+  c=$(curl -s -o /dev/null -m 20 -w '%{http_code}' "$u"); log "  $u -> $c"
+  [ "$c" = "000" ] && { log "FATAL network: $u unreachable"; kill -TERM 1; exit 1; }
+done
 log "pip install"
-pip install -q "transformers==5.24.1" "trl==1.19.0" "peft==0.22.0" "accelerate>=1.12" "datasets>=4.7" \
-  bitsandbytes pyyaml httpx scipy flash-linear-attention 2>&1 | tail -2
+timeout 1500 pip install --progress-bar off --default-timeout 60 "transformers==5.24.1" "trl==1.19.0" "peft==0.22.0" "accelerate>=1.12" "datasets>=4.7" \
+  bitsandbytes pyyaml httpx scipy flash-linear-attention 2>&1 | grep -E "^(Successfully|ERROR)" | cut -c1-300 \
+  || { log "FATAL pip install"; kill -TERM 1; exit 1; }
 pip install -q -e . 2>&1 | tail -1
 python -c "import torch,transformers,trl,peft;print('versions',torch.__version__,transformers.__version__,trl.__version__,peft.__version__)"
 python -c "import fla; print('fla ok')" 2>/dev/null || log "flash-linear-attention unavailable (torch fallback)"
