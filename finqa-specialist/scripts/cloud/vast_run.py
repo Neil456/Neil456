@@ -121,17 +121,26 @@ def cmd_launch(a):
     best, hours = cmd_plan(a)
     if best["dph_total"] * hours + a.reserve_usd > a.max_usd:
         sys.exit("ABORT: worst case exceeds --max-usd")
-    bundle = build_bundle()
-    print(f"bundle: {len(bundle)} base64 chars")
-    # Vast limits: total env <= 32KB, onstart <= 16KB -> split the bundle across both.
-    head, rest = bundle[:30000], bundle[30000:]
-    onstart = ("mkdir -p /workspace/repo/finqa-specialist && cd /workspace/repo/finqa-specialist && "
-               f"printf '%s%s' \"$CODE_B64\" '{rest}' | base64 -d | tar xJ && "
-               "setsid nohup bash -c 'bash scripts/cloud/vast_job.sh 2>&1 | tee -a /workspace/job.log | tee /proc/1/fd/1' >/dev/null 2>&1 &")
+    run_job = (f"setsid nohup bash -c 'bash {a.job} 2>&1 | tee -a /workspace/job.log | tee /proc/1/fd/1' "
+               ">/dev/null 2>&1 &")
+    env = {"MAX_HOURS": str(int(hours)), "EPOCHS": str(a.epochs), "HOURLY_USD": f"{best['dph_total']:.4f}",
+           "PYTHONUNBUFFERED": "1"}
+    if a.clone:
+        # public branch pushed at a fixed commit: clone it (no bundle size limits)
+        sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+        onstart = ("mkdir -p /workspace && cd /workspace && (command -v git >/dev/null || (apt-get update -qq && apt-get install -y -qq git unzip)) && "
+                   f"git clone -q {a.repo_url} repo && cd repo && git checkout -q {sha} && cd finqa-specialist && " + run_job)
+        print(f"clone mode: {a.repo_url} @ {sha[:10]}")
+    else:
+        bundle = build_bundle()
+        print(f"bundle: {len(bundle)} base64 chars")
+        # Vast limits: total env <= 32KB, onstart <= 16KB -> split the bundle across both.
+        head, rest = bundle[:30000], bundle[30000:]
+        onstart = ("mkdir -p /workspace/repo/finqa-specialist && cd /workspace/repo/finqa-specialist && "
+                   f"printf '%s%s' \"$CODE_B64\" '{rest}' | base64 -d | tar xJ && " + run_job)
+        env["CODE_B64"] = head
     if len(onstart) > 15800:
         sys.exit(f"ABORT: onstart too long ({len(onstart)} chars); trim the bundle")
-    env = {"CODE_B64": head, "MAX_HOURS": str(int(hours)), "EPOCHS": str(a.epochs),
-           "HOURLY_USD": f"{best['dph_total']:.4f}", "PYTHONUNBUFFERED": "1"}
     if not a.confirm:
         print("DRY RUN: add --confirm to create the instance.")
         return
@@ -166,6 +175,7 @@ def fetch_logs(iid, tail="400", wait_s=90) -> str:
     url = j.get("result_url") or j.get("temp_download_url")
     if not url:
         return ""
+    time.sleep(6)  # the same S3 key is reused per instance: give Vast time to overwrite the previous copy
     for _ in range(int(wait_s / 1.5)):
         time.sleep(1.5)
         g = requests.get(url, timeout=60)
@@ -182,6 +192,9 @@ def destroy(iid, why):
     print(f"destroy {iid}: {r.status_code} ({why})")
 
 
+PAYLOAD_DIR = "results/cloud/payload"
+
+
 def extract_payload(text: str) -> bool:
     chunks = {}
     for l in text.splitlines():
@@ -194,7 +207,7 @@ def extract_payload(text: str) -> bool:
         print(f"payload incomplete: {len(chunks)} of {max(chunks)} lines")
         return False
     raw = base64.b64decode("".join(chunks[i] for i in sorted(chunks)))
-    out = ROOT / "results/cloud/payload"
+    out = ROOT / PAYLOAD_DIR
     out.mkdir(parents=True, exist_ok=True)
     with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as tf:
         for m in tf.getmembers():
@@ -256,7 +269,13 @@ def main():
     ap.add_argument("--epochs", type=int, default=1)
     ap.add_argument("--poll", type=int, default=300)
     ap.add_argument("--confirm", action="store_true")
+    ap.add_argument("--job", default="scripts/cloud/vast_job.sh")
+    ap.add_argument("--clone", action="store_true", help="clone the pushed branch at HEAD instead of shipping a bundle")
+    ap.add_argument("--repo-url", default="https://github.com/Neil456/Neil456")
+    ap.add_argument("--payload-dir", default="results/cloud/payload")
     a = ap.parse_args()
+    global PAYLOAD_DIR
+    PAYLOAD_DIR = a.payload_dir
     if a.cmd == "plan":
         cmd_plan(a)
     elif a.cmd == "launch":

@@ -18,6 +18,11 @@ PAIRS = [  # (baseline, treatment) on identical example ids
     ("q35-9b_base_direct_financebench_numeric", "q35-9b_sft_direct_financebench_numeric"),
     ("q35-9b_base_cot_val100", "q35-9b_sft_direct_finqa_dev"),
     ("q35-0.8b_sft_direct_val100", "q35-9b_sft_direct_finqa_dev"),
+    ("q35-9b_abl_finqa1600_direct_finqa_dev", "q35-9b_abl_finqa1200_synth400_direct_finqa_dev"),
+    ("q35-9b_abl_finqa1600_direct_sec_fresh", "q35-9b_abl_finqa1200_synth400_direct_sec_fresh"),
+    ("q38-27b-4bit_base_direct_finqa_dev", "q35-9b_sft_direct_finqa_dev"),
+    ("q38-27b-4bit_base_direct_sec_fresh", "q35-9b_sft_direct_sec_fresh"),
+    ("q35-9b_base_direct_finqa_dev", "q38-27b-4bit_base_direct_finqa_dev"),
 ]
 
 

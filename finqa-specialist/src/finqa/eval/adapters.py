@@ -52,7 +52,7 @@ class HFAdapter(Adapter):
     name = "hf"
 
     def __init__(self, model: str, revision: str | None = None, adapter_path: str | None = None,
-                 dtype: str = "bfloat16", device: str = "auto", threads: int | None = None):
+                 dtype: str = "bfloat16", device: str = "auto", threads: int | None = None, load_in_4bit: bool = False):
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -67,7 +67,15 @@ class HFAdapter(Adapter):
             device = "cuda" if torch.cuda.is_available() else "cpu"
         self.device = device
         td = getattr(torch, dtype)
-        self.model = AutoModelForCausalLM.from_pretrained(model, revision=revision, dtype=td).to(device)
+        self.load_in_4bit = load_in_4bit
+        if load_in_4bit:  # e.g. a 27B baseline on a 40GB GPU (documented as a 4-bit handicap)
+            from transformers import BitsAndBytesConfig
+            q = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_use_double_quant=True,
+                                   bnb_4bit_compute_dtype=td)
+            self.model = AutoModelForCausalLM.from_pretrained(model, revision=revision, dtype=td, quantization_config=q,
+                                                              device_map={"": 0})
+        else:
+            self.model = AutoModelForCausalLM.from_pretrained(model, revision=revision, dtype=td).to(device)
         if adapter_path:
             from peft import PeftModel
             self.model = PeftModel.from_pretrained(self.model, adapter_path)
@@ -78,7 +86,7 @@ class HFAdapter(Adapter):
     def describe(self) -> dict:
         import torch, transformers
         return {"adapter": "hf", "model": self.model_id, "revision": self.revision, "lora": self.adapter_path,
-                "dtype": self.dtype, "device": self.device, "torch": torch.__version__,
+                "dtype": self.dtype, "device": self.device, "load_in_4bit": self.load_in_4bit, "torch": torch.__version__,
                 "transformers": transformers.__version__, "threads": torch.get_num_threads()}
 
     def render(self, msgs: list[dict], cfg: GenConfig) -> str:
@@ -248,7 +256,7 @@ def make_adapter(spec: dict) -> Adapter:
     kind = spec["adapter"]
     if kind == "hf":
         return HFAdapter(spec["model"], spec.get("revision"), spec.get("lora"), spec.get("dtype", "bfloat16"),
-                         spec.get("device", "auto"), spec.get("threads"))
+                         spec.get("device", "auto"), spec.get("threads"), spec.get("load_in_4bit", False))
     if kind == "openai_compat":
         return OpenAICompatAdapter(spec["model"], spec["base_url"], spec.get("api_key_env", "FINQA_OPENAI_API_KEY"),
                                    spec.get("price_in"), spec.get("price_out"))

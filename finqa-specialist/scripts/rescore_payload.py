@@ -22,10 +22,10 @@ DATA = {
 
 
 def main():
-    pay = ROOT / "results/cloud/payload"
+    pay = ROOT / (sys.argv[1] if len(sys.argv) > 1 else "results/cloud/payload")
     out_dir = ROOT / "results/preds"
     report = {}
-    for f in sorted(pay.glob("q35-9b_*.jsonl")):
+    for f in sorted(list(pay.glob("q35-9b_*.jsonl")) + list(pay.glob("q38-27b*.jsonl"))):
         key = next((k for k in DATA if f.stem.endswith(k)), None)
         if key is None:
             continue
@@ -52,7 +52,7 @@ def main():
         mism = sum(1 for r in recs if r.get("remote_score_mismatch"))
         report[name] = {"n": len(recs), "missing_ids": missing, "remote_local_score_mismatches": mism,
                         "raw": s.get("correct", {}).get("mean"), "prog": s.get("prog_correct", {}).get("mean")}
-    (ROOT / "results/cloud/rescore_report.json").write_text(json.dumps(report, indent=2))
+    (pay / "rescore_report.json").write_text(json.dumps(report, indent=2))
     print(json.dumps(report, indent=1))
 
 

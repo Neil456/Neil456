@@ -90,6 +90,7 @@ def main(argv=None):
     ap.add_argument("--base-url")
     ap.add_argument("--dtype", default="bfloat16")
     ap.add_argument("--threads", type=int)
+    ap.add_argument("--load-in-4bit", action="store_true")
     ap.add_argument("--data", required=True)
     ap.add_argument("--subset", choices=list(SUBSET_SIZES) + ["full"], default=None)
     ap.add_argument("--limit", type=int)
@@ -129,11 +130,11 @@ def main(argv=None):
                     enable_thinking=args.enable_thinking, reasoning_effort=args.reasoning_effort,
                     batch_size=args.batch_size)
     spec = {"adapter": args.adapter, "model": args.model, "revision": args.revision, "lora": args.lora,
-            "base_url": args.base_url, "dtype": args.dtype, "threads": args.threads,
+            "base_url": args.base_url, "dtype": args.dtype, "threads": args.threads, "load_in_4bit": args.load_in_4bit,
             "price_in": args.price_in, "price_out": args.price_out}
     cfg_d = asdict(cfg)
     cfg_d.pop("batch_size")
-    config_hash = hashlib.sha256(json.dumps({"spec": {k: spec[k] for k in ("adapter", "model", "revision", "lora")},
+    config_hash = hashlib.sha256(json.dumps({"spec": {k: spec[k] for k in ("adapter", "model", "revision", "lora", "load_in_4bit")},
                                              "cfg": cfg_d, "variant": args.variant}, sort_keys=True).encode()).hexdigest()[:16]
 
     out = Path(args.out)
