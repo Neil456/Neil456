@@ -34,8 +34,8 @@
 
 ## 1. Setup and provenance
 See `docs/DECISIONS.md` for model revisions, licenses, environment, and price sources.
-* Models: `Qwen/Qwen3.5-0.8B@2fc0636` (CPU proxy), `Qwen/Qwen3.5-2B@15852e8` (CPU baseline),
-  `Qwen/Qwen3.5-9B@c202236` (GPU fine-tuning target; the 2B was downloaded but its CPU eval was stopped), `Qwen/Qwen3.8-27B@3756181` (strong open baseline, 4-bit eval).
+* Models: `Qwen/Qwen3.5-0.8B@2fc0636` (CPU proxy), `Qwen/Qwen3.5-2B@15852e8` (CPU baseline, stopped; not reported),
+  `Qwen/Qwen3.5-9B@c202236` (GPU fine-tuning target), `Qwen/Qwen3.8-27B@3756181` (strong open baseline, 4-bit eval).
   All Apache-2.0. `transformers 5.24.1`, `trl 1.19.0`, `peft 0.22.0`, `torch 2.9.1` (CPU).
 * Data (official splits preserved; hashes in `results/data_manifest.json`):
 
