@@ -213,9 +213,9 @@ def cmd_watch(a):
         logs = fetch_logs(iid) if status == "running" else ""
         prog = [l for l in logs.splitlines() if l.startswith("[finqa-job") or "'loss'" in l or "eval_loss" in l]
         tail = "\n".join(prog[-6:])
-        if tail != last_print:
-            print(f"--- {time.strftime('%H:%M:%S')} status={status} elapsed={elapsed_h:.2f}h est=${spent_est:.2f}\n{tail}", flush=True)
-            last_print = tail
+        new = tail if tail != last_print else "(no new job lines)"
+        print(f"--- {time.strftime('%H:%M:%S')} status={status} elapsed={elapsed_h:.2f}h est=${spent_est:.2f}\n{new}", flush=True)
+        last_print = tail
         if logs:
             (ROOT / "results/cloud").mkdir(parents=True, exist_ok=True)
             (ROOT / "results/cloud/job_log_tail.txt").write_text("\n".join(l for l in logs.splitlines() if "@P@" not in l)[-200000:])

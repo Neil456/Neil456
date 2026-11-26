@@ -1,11 +1,10 @@
 {
-  "instance_id": 62703695,
+  "instance_id": 62706336,
   "offer_id": 57328786,
   "gpu": "A100 SXM4",
-  "dph": 0.62,
-  "created": 1795702255.371739,
+  "dph": 0.6211111111111111,
+  "created": 1795703775.7972026,
   "max_usd": 8.0,
   "max_hours": 8.0,
-  "destroyed": false,
-  "dph_note": "instance dph_total incl. storage = 0.611; rounded up for the cap"
+  "destroyed": false
 }

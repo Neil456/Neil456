@@ -19,19 +19,24 @@ command -v unzip >/dev/null || (apt-get update -qq && apt-get install -y -qq unz
 [ -f repo/finqa-specialist/pyproject.toml ] || git clone -q --depth 1 -b "$BRANCH" "$REPO_URL" repo || { log "FATAL no code"; kill -TERM 1; }
 cd repo/finqa-specialist
 log "GPU: $(nvidia-smi --query-gpu=name,memory.total --format=csv,noheader)"
+log "pip install"
 pip install -q "transformers==5.24.1" "trl==1.19.0" "peft==0.22.0" "accelerate>=1.12" "datasets>=4.7" \
   bitsandbytes pyyaml httpx scipy flash-linear-attention 2>&1 | tail -2
 pip install -q -e . 2>&1 | tail -1
 python -c "import torch,transformers,trl,peft;print('versions',torch.__version__,transformers.__version__,trl.__version__,peft.__version__)"
 python -c "import fla; print('fla ok')" 2>/dev/null || log "flash-linear-attention unavailable (torch fallback)"
 export HF_HOME=/workspace/hf_cache TOKENIZERS_PARALLELISM=false
-bash scripts/download_data.sh >/dev/null 2>&1 && python -m finqa.data.build --raw data/raw --out data/processed > /dev/null && log "data built"
-python -m finqa.sec.xbrl_eval --out data/processed/sec_fresh_eval.jsonl > /dev/null 2>&1 && log "sec built" || log "sec build failed (skipping)"
+log "downloading datasets"
+bash scripts/download_data.sh 2>&1 | tail -8
+python -m finqa.data.build --raw data/raw --out data/processed 2>&1 | tail -2 && log "data built" || { log "FATAL data build"; kill -TERM 1; }
+timeout 900 python -m finqa.sec.xbrl_eval --out data/processed/sec_fresh_eval.jsonl 2>&1 | tail -1 && log "sec built" || log "sec build failed (skipping)"
+log "downloading Qwen3.5-9B"
+timeout 2400 python -c "from huggingface_hub import snapshot_download; print(snapshot_download('Qwen/Qwen3.5-9B', revision='c202236235762e1c871ad0ccb60c8ee5ba337b9a'))" 2>&1 | tail -1 && log "model downloaded" || { log "FATAL model download"; kill -TERM 1; }
 M=Qwen/Qwen3.5-9B; R=c202236235762e1c871ad0ccb60c8ee5ba337b9a
 CK=/workspace/checkpoints/sft_gpu_q35_9b
 log "SFT start (epochs=$EPOCHS)"
 python -m finqa.train.sft --config configs/sft_gpu_q35_9b.yaml --override output_dir=$CK epochs=$EPOCHS per_device_batch_size=1 grad_accum=16 save_steps=100 eval_steps=100 logging_steps=5 max_train_hours=$(( MAX_HOURS - 2 )) 2>&1 \
-  | grep --line-buffered -E "\[sft\]|'loss'|eval_loss|Error|Traceback" | tail -n 400
+  | grep --line-buffered -E "\[sft\]|'loss'|eval_loss|Error|Traceback|out of memory"
 python scripts/select_checkpoint.py $CK && log "selected $(readlink $CK/best)"
 EV="python -m finqa.eval.runner --adapter hf --model $M --revision $R --batch-size 8 --max-new-tokens 160 --hourly-usd ${HOURLY_USD:-0}"
 $EV --data data/processed/finqa_dev.jsonl --out results/preds/q35-9b_base_direct_finqa_dev.jsonl 2>&1 | tail -3
