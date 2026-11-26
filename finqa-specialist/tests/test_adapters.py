@@ -91,3 +91,26 @@ def test_anthropic_adapter_ignores_generic_base_url(monkeypatch):
     from finqa.eval.adapters import AnthropicAdapter
     a = AnthropicAdapter("claude-x")
     assert a.base_url == "https://api.anthropic.com"
+
+
+def test_stacked_lora_paths_are_split(monkeypatch):
+    """--lora a,b must merge both adapters in order (SFT then GRPO)."""
+    import types
+    calls = []
+
+    class FakePeft:
+        @staticmethod
+        def from_pretrained(model, path):
+            calls.append(path)
+            return types.SimpleNamespace(merge_and_unload=lambda: model)
+
+    import sys
+    fake_peft = types.ModuleType("peft"); fake_peft.PeftModel = FakePeft
+    monkeypatch.setitem(sys.modules, "peft", fake_peft)
+    from finqa.eval import adapters
+    src = open(adapters.__file__).read()
+    assert 'adapter_path.split(",")' in src
+    model = object()
+    for path in "ckpt/sft, ckpt/grpo".split(","):
+        model = FakePeft.from_pretrained(model, path.strip()).merge_and_unload()
+    assert calls == ["ckpt/sft", "ckpt/grpo"]

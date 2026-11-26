@@ -16,6 +16,7 @@ from finqa.eval.scoring import score_output  # noqa: E402
 DATA = {
     "finqa_dev": "data/processed/finqa_dev.jsonl",
     "val100": "data/processed/finqa_dev.jsonl",
+    "val300": "data/processed/finqa_dev.jsonl",
     "sec_fresh": "data/processed/sec_fresh_eval.jsonl",
     "financebench_numeric": "data/processed/financebench_eval.jsonl",
 }

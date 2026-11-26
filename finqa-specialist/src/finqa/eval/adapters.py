@@ -78,8 +78,9 @@ class HFAdapter(Adapter):
             self.model = AutoModelForCausalLM.from_pretrained(model, revision=revision, dtype=td).to(device)
         if adapter_path:
             from peft import PeftModel
-            self.model = PeftModel.from_pretrained(self.model, adapter_path)
-            self.model = self.model.merge_and_unload()
+            for path in adapter_path.split(","):  # stacked adapters (e.g. SFT then GRPO) are merged in order
+                self.model = PeftModel.from_pretrained(self.model, path.strip())
+                self.model = self.model.merge_and_unload()
         self.model.eval()
         self.dtype = dtype
 

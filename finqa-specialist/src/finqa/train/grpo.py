@@ -51,6 +51,7 @@ def main():
         rows += [r for r in load_jsonl(f) if r["split"] == "train" and not r["meta"].get("leak_doc")]
     rows.sort(key=lambda r: r["id"])
     random.Random(cfg.get("seed", 0)).shuffle(rows)
+    rows = rows[cfg.get("skip_first", 0):]  # e.g. skip the examples the SFT init adapter was trained on
     if cfg.get("max_train_examples"):
         rows = rows[: cfg["max_train_examples"]]
     by_id = {r["id"]: r for r in rows}
@@ -107,8 +108,19 @@ def main():
     ckpts = sorted(out_dir.glob("checkpoint-*"), key=lambda p: int(p.name.split("-")[-1]))
     trainer.train(resume_from_checkpoint=str(ckpts[-1]) if ckpts else None)
     trainer.save_model(str(out_dir / "final"))
-    (out_dir / "run_manifest.json").write_text(json.dumps({"config": cfg, "wall_s": time.time() - t0,
+    wall = time.time() - t0
+    n_completions = trainer.state.global_step * gargs.per_device_train_batch_size * gargs.gradient_accumulation_steps
+    mem = {}
+    if torch.cuda.is_available():
+        mem = {"max_memory_allocated_gb": round(torch.cuda.max_memory_allocated() / 2**30, 2),
+               "max_memory_reserved_gb": round(torch.cuda.max_memory_reserved() / 2**30, 2),
+               "gpu": torch.cuda.get_device_name(0)}
+    (out_dir / "run_manifest.json").write_text(json.dumps({"config": cfg, "wall_s": wall,
                                                            "steps": trainer.state.global_step,
+                                                           "completions_total": n_completions,
+                                                           "completions_per_s": n_completions / max(wall, 1e-9),
+                                                           "s_per_step": wall / max(trainer.state.global_step, 1),
+                                                           "memory": mem, "train_ids_first": rows[0]["id"] if rows else None,
                                                            "log_tail": trainer.state.log_history[-5:]}, indent=2, default=str))
     print(f"[grpo] done in {(time.time()-t0)/60:.1f} min")
 

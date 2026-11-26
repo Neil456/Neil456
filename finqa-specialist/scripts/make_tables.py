@@ -23,6 +23,7 @@ PAIRS = [  # (baseline, treatment) on identical example ids
     ("q38-27b-4bit_base_direct_finqa_dev", "q35-9b_sft_direct_finqa_dev"),
     ("q38-27b-4bit_base_direct_sec_fresh", "q35-9b_sft_direct_sec_fresh"),
     ("q35-9b_base_direct_finqa_dev", "q38-27b-4bit_base_direct_finqa_dev"),
+    ("q35-9b_grpoinit_sft1600_direct_val300", "q35-9b_grpo_smoke_direct_val300"),
 ]
 
 
