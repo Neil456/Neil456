@@ -131,7 +131,21 @@ model; the primary metric was not loosened.
 not retrieved (instance destroyed after results; ~200 MB adapter can be regenerated with the same command, ~$1).
 
 ### 4.2 Qwen3.5-0.8B LoRA on CPU (proxy)
-<!-- CPU RESULTS PENDING -->
+Recipe (`configs/sft_cpu_q35_0.8b.yaml`): bf16 LoRA r=16/α=32 on all linear layers (no 4-bit on CPU), lr 2e-4 cosine,
+effective batch 16, gradient checkpointing (turning it off was OOM-killed on 15 GB), max length 2,560 (10 of 640 selected
+examples dropped as too long), 1 epoch over **630** FinQA train examples = 40 optimizer steps in **5.6 h** on 4 vCPU.
+Held-out loss (select60): 0.361 → 0.298 → 0.252 → **0.245 (step 40, selected)**.
+
+| model (FinQA dev val100, same 100 ids) | raw | prog | exact5 (raw) | valid program |
+|---|---|---|---|---|
+| Qwen3.5-0.8B base | 6.0 [2.0, 11.0] | 1.0 [0.0, 3.0] | 2.0 | 30% |
+| Qwen3.5-0.8B + CPU LoRA SFT (630 ex) | **45.0 [35.0, 54.0]** | **53.0 [43.0, 62.0]** | 15.0 | 98% |
+
+Paired: raw **+39 pts [+29, +49]** (40 items fixed, 1 broken; exact McNemar p<1e-10); prog +52 pts [+42, +62]. The tiny
+model learns the output format and number selection quickly; its own arithmetic stays weak (prog > raw; exact5 15%).
+Latency here (mean 23 s, median 7 s per question) is inflated: a GRPO API check ran concurrently on the same 4 vCPUs.
+Further CPU runs (0.8B on SEC/FinanceBench, 0.8B synthetic ablation, 2B baseline, 0.8B GRPO smoke) are appended to
+`results/summary.md` as they complete.
 
 ## 5. Synthetic data (Phase 3)
 * Generator: `src/finqa/synth/generator.py` builds fictional multi-year statements with accounting identities

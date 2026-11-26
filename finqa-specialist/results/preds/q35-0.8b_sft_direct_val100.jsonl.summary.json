@@ -1,46 +1,46 @@
 {
-  "n": 50,
-  "n_total_records": 50,
+  "n": 100,
+  "n_total_records": 100,
   "correct": {
-    "mean": 0.42,
+    "mean": 0.45,
     "ci95": [
-      0.28,
-      0.56
+      0.35,
+      0.54
     ]
   },
   "correct_lenient": {
-    "mean": 0.42,
+    "mean": 0.45,
     "ci95": [
-      0.28,
-      0.56
+      0.35,
+      0.54
     ]
   },
   "correct_exact5": {
-    "mean": 0.18,
+    "mean": 0.15,
     "ci95": [
       0.08,
-      0.3
+      0.22
     ]
   },
   "prog_correct": {
-    "mean": 0.5,
+    "mean": 0.53,
     "ci95": [
-      0.36,
-      0.64
-    ]
-  },
-  "prog_correct_exact5": {
-    "mean": 0.48,
-    "ci95": [
-      0.34,
+      0.43,
       0.62
     ]
   },
-  "assisted_correct": {
-    "mean": 0.52,
+  "prog_correct_exact5": {
+    "mean": 0.51,
     "ci95": [
-      0.38,
-      0.66
+      0.41,
+      0.6
+    ]
+  },
+  "assisted_correct": {
+    "mean": 0.54,
+    "ci95": [
+      0.44,
+      0.64
     ]
   },
   "answer_parsed": {
@@ -53,20 +53,20 @@
   "program_ok": {
     "mean": 0.98,
     "ci95": [
-      0.94,
+      0.95,
       1.0
     ]
   },
   "latency_s": {
-    "mean": 7.419133992195129,
-    "p50": 7.262468099594116,
-    "p90": 9.002434015274048
+    "mean": 23.480228035449983,
+    "p50": 7.221573352813721,
+    "p90": 80.86158585548401
   },
   "tokens": {
-    "input_total": 80585,
-    "output_total": 1467,
-    "input_mean": 1611.7,
-    "output_mean": 29.34
+    "input_total": 135846,
+    "output_total": 3183,
+    "input_mean": 1358.46,
+    "output_mean": 31.83
   },
   "cost_usd_total": null,
   "truncated": 0
