@@ -1,0 +1,51 @@
+{
+  "q35-9b_base_cot_val100": {
+    "n": 100,
+    "missing_ids": 0,
+    "remote_local_score_mismatches": 0,
+    "raw": 0.65,
+    "prog": 0.27
+  },
+  "q35-9b_base_direct_financebench_numeric": {
+    "n": 52,
+    "missing_ids": 0,
+    "remote_local_score_mismatches": 0,
+    "raw": 0.5384615384615384,
+    "prog": 0.21153846153846154
+  },
+  "q35-9b_base_direct_finqa_dev": {
+    "n": 883,
+    "missing_ids": 0,
+    "remote_local_score_mismatches": 0,
+    "raw": 0.6172140430351076,
+    "prog": 0.41562853907134767
+  },
+  "q35-9b_base_direct_sec_fresh": {
+    "n": 303,
+    "missing_ids": 0,
+    "remote_local_score_mismatches": 0,
+    "raw": 0.8151815181518152,
+    "prog": 0.6435643564356436
+  },
+  "q35-9b_sft_direct_financebench_numeric": {
+    "n": 52,
+    "missing_ids": 0,
+    "remote_local_score_mismatches": 7,
+    "raw": 0.4230769230769231,
+    "prog": 0.5576923076923077
+  },
+  "q35-9b_sft_direct_finqa_dev": {
+    "n": 883,
+    "missing_ids": 0,
+    "remote_local_score_mismatches": 0,
+    "raw": 0.7599093997734995,
+    "prog": 0.7768969422423556
+  },
+  "q35-9b_sft_direct_sec_fresh": {
+    "n": 303,
+    "missing_ids": 0,
+    "remote_local_score_mismatches": 0,
+    "raw": 0.8811881188118812,
+    "prog": 0.9702970297029703
+  }
+}

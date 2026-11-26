@@ -6,8 +6,27 @@ Accuracy in % with 95% bootstrap CI. `raw` = model's own stated answer (primary 
 |---|---|---|---|---|---|---|---|---|---|
 | q35-0.8b_base_direct_smoke20 | 20 | 10.0 [0.0, 25.0] | 10.0 [0.0, 25.0] | 5.0 [0.0, 15.0] | 10.0 [0.0, 25.0] | 95.0 [85.0, 100.0] | 25.0 [10.0, 45.0] | 10.9 | 48.8 |
 | q35-0.8b_base_direct_val100 | 100 | 6.0 [2.0, 11.0] | 6.0 [2.0, 11.0] | 1.0 [0.0, 3.0] | 6.0 [2.0, 11.0] | 88.0 [82.0, 94.0] | 30.0 [21.0, 39.0] | 10.3 | 53.6 |
+| q35-9b_base_cot_val100 | 100 | 65.0 [56.0, 75.0] | 66.0 [57.0, 76.0] | 27.0 [18.0, 36.0] | 57.0 [47.0, 67.0] | 99.0 [97.0, 100.0] | 49.0 [39.0, 59.0] | 3.2 | 186.9 |
+| q35-9b_base_direct_financebench_numeric | 52 | 53.8 [40.4, 67.3] | 53.8 [40.4, 67.3] | 21.2 [11.5, 32.7] | 46.2 [32.7, 59.6] | 98.1 [94.2, 100.0] | 55.8 [40.4, 69.2] | 1.3 | 49.7 |
+| q35-9b_base_direct_finqa_dev | 883 | 61.7 [58.4, 65.0] | 61.7 [58.4, 65.0] | 41.6 [38.3, 45.0] | 50.8 [47.6, 54.1] | 99.4 [98.9, 99.9] | 78.5 [75.9, 81.2] | 0.7 | 37.4 |
+| q35-9b_base_direct_sec_fresh | 303 | 81.5 [76.9, 85.8] | 81.5 [76.9, 85.8] | 64.4 [59.1, 70.0] | 65.3 [60.1, 70.6] | 100.0 [100.0, 100.0] | 98.3 [96.7, 99.7] | 0.5 | 41.0 |
+| q35-9b_sft_direct_financebench_numeric | 52 | 42.3 [28.8, 55.8] | 42.3 [28.8, 55.8] | 55.8 [42.3, 69.2] | 55.8 [42.3, 69.2] | 98.1 [94.2, 100.0] | 98.1 [94.2, 100.0] | 0.9 | 45.7 |
+| q35-9b_sft_direct_finqa_dev | 883 | 76.0 [73.0, 78.7] | 77.5 [74.6, 80.2] | 77.7 [74.9, 80.3] | 77.7 [74.9, 80.3] | 100.0 [100.0, 100.0] | 99.8 [99.4, 100.0] | 0.5 | 31.2 |
+| q35-9b_sft_direct_sec_fresh | 303 | 88.1 [84.5, 91.7] | 88.1 [84.5, 91.7] | 97.0 [95.0, 98.7] | 97.0 [95.0, 98.7] | 100.0 [100.0, 100.0] | 100.0 [100.0, 100.0] | 0.5 | 38.6 |
 
 ## Paired comparisons (treatment - baseline, same example ids)
 
 | baseline | treatment | metric | n | acc A | acc B | diff | 95% CI | McNemar p |
 |---|---|---|---|---|---|---|---|---|
+| q35-9b_base_direct_finqa_dev | q35-9b_sft_direct_finqa_dev | correct | 883 | 61.7 | 76.0 | +14.3 | [+11.3, +17.3] | 2.8e-20 |
+| q35-9b_base_direct_finqa_dev | q35-9b_sft_direct_finqa_dev | prog_correct | 883 | 41.6 | 77.7 | +36.1 | [+32.7, +39.5] | 4.5e-78 |
+| q35-9b_base_direct_finqa_dev | q35-9b_sft_direct_finqa_dev | assisted_correct | 883 | 50.8 | 77.7 | +26.8 | [+23.6, +30.1] | 1.7e-51 |
+| q35-9b_base_direct_sec_fresh | q35-9b_sft_direct_sec_fresh | correct | 303 | 81.5 | 88.1 | +6.6 | [+3.3, +10.2] | 0.00018 |
+| q35-9b_base_direct_sec_fresh | q35-9b_sft_direct_sec_fresh | prog_correct | 303 | 64.4 | 97.0 | +32.7 | [+27.4, +38.3] | 1.1e-27 |
+| q35-9b_base_direct_sec_fresh | q35-9b_sft_direct_sec_fresh | assisted_correct | 303 | 65.3 | 97.0 | +31.7 | [+26.4, +37.0] | 8e-27 |
+| q35-9b_base_direct_financebench_numeric | q35-9b_sft_direct_financebench_numeric | correct | 52 | 53.8 | 42.3 | -11.5 | [-23.1, +0.0] | 0.11 |
+| q35-9b_base_direct_financebench_numeric | q35-9b_sft_direct_financebench_numeric | prog_correct | 52 | 21.2 | 55.8 | +34.6 | [+21.2, +48.1] | 7.6e-06 |
+| q35-9b_base_direct_financebench_numeric | q35-9b_sft_direct_financebench_numeric | assisted_correct | 52 | 46.2 | 55.8 | +9.6 | [-7.7, +25.0] | 0.36 |
+| q35-9b_base_cot_val100 | q35-9b_sft_direct_finqa_dev | correct | 100 | 65.0 | 72.0 | +7.0 | [-2.0, +16.0] | 0.19 |
+| q35-9b_base_cot_val100 | q35-9b_sft_direct_finqa_dev | prog_correct | 100 | 27.0 | 73.0 | +46.0 | [+35.0, +57.0] | 2.3e-12 |
+| q35-9b_base_cot_val100 | q35-9b_sft_direct_finqa_dev | assisted_correct | 100 | 57.0 | 73.0 | +16.0 | [+7.0, +25.0] | 0.0015 |

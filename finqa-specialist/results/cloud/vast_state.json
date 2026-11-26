@@ -7,7 +7,7 @@
   "created": 1795705928.562658,
   "max_usd": 7.3,
   "max_hours": 8.0,
-  "destroyed": false,
+  "destroyed": true,
   "bad_machine_ids": [
     154697
   ],
@@ -21,5 +21,9 @@
       "destroy_reason": "stuck in pip install 34 min with idle CPU (suspected host network issue)"
     }
   ],
-  "prior_spend_est_usd": 0.65
+  "prior_spend_est_usd": 0.65,
+  "destroy_reason": "job done, payload retrieved (manual fetch)",
+  "destroyed_at": 1795715139.4027927,
+  "final_instance_hours": 2.558,
+  "final_instance_cost_est_usd": 1.89
 }

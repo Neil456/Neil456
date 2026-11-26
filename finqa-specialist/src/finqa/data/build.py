@@ -154,6 +154,8 @@ def load_tatqa(raw: Path, stats: dict) -> list[dict]:
                 st["kept"] += 1
                 scale = q.get("scale", "")
                 unit = "percent" if scale == "percent" else ("count" if q["answer_type"] == "count" else "ratio_or_number")
+                if scale == "percent":
+                    val = val / 100.0  # same fraction convention as FinQA / FinanceBench
                 out.append({
                     "id": f"tatqa:{q['uid']}",
                     "source": "tatqa",
@@ -244,7 +246,9 @@ def load_financebench(raw: Path, stats: dict) -> list[dict]:
             "split": "eval",
             "context": {"pre_text": [ev], "table": [], "post_text": []},
             "question": r["question"],
-            "answer": (float(pv.value) if numeric else atext),
+            # percent golds are stored as fractions (FinQA exe_ans convention; the prompt allows "x%" or a decimal
+            # fraction, and the matcher accepts "x%" against either form)
+            "answer": ((float(pv.value) / 100.0 if pv.has_percent else float(pv.value)) if numeric else atext),
             "answer_text": atext,
             "unit": ("percent" if numeric and pv.has_percent else ("currency" if numeric and "$" in atext else ("ratio_or_number" if numeric else "text"))),
             "scale": "",

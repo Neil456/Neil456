@@ -1,0 +1,48 @@
+{
+  "config_hash": "2f90663cc13349f3",
+  "spec": {
+    "adapter": "hf",
+    "model": "Qwen/Qwen3.5-9B",
+    "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+    "lora": null,
+    "base_url": null,
+    "dtype": "bfloat16",
+    "threads": null,
+    "price_in": null,
+    "price_out": null
+  },
+  "gen_config": {
+    "max_new_tokens": 160,
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "seed": 0,
+    "enable_thinking": false,
+    "reasoning_effort": null,
+    "batch_size": 8
+  },
+  "variant": "direct",
+  "data": "data/processed/finqa_dev.jsonl",
+  "data_sha256": "901fce94a253900eb6e3440c27bdd8d667b448d89d2bb4ddc8bdb14628406b3a",
+  "subset": null,
+  "limit": null,
+  "subset_seed": 0,
+  "n_selected": 883,
+  "code_git_rev": null,
+  "started_utc": "2026-11-26T16:43:14Z",
+  "host": "Linux-6.8.0-147-generic-x86_64-with-glibc2.35",
+  "cpu_count": 128,
+  "tag": "",
+  "adapter": {
+    "adapter": "hf",
+    "model": "Qwen/Qwen3.5-9B",
+    "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+    "lora": null,
+    "dtype": "bfloat16",
+    "device": "cuda",
+    "torch": "2.9.1+cu128",
+    "transformers": "5.24.1",
+    "threads": 64
+  },
+  "finished_utc": "2026-11-26T16:53:46Z",
+  "spent_usd": 0.0
+}

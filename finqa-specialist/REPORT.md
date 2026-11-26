@@ -11,10 +11,17 @@
   (train 6,251 · dev 883 · test 1,147), numeric answer matcher, resumable/cached evaluation runner with
   local + API adapters and budget guards, TRL SFT/GRPO scripts, verifiable reward with adversarial tests,
   verified synthetic generator, cloud launch kit. 82 tests pass.
-* **Measured (small-model CPU proxy, FinQA dev val100):** base Qwen3.5-0.8B = **6.0% [2.0, 11.0]** raw-answer
-  accuracy; **1.0%** when its own program is executed. SFT results: see §4 (filled when the CPU queue finishes).
-* **Not answered yet:** the headline question (open 9B vs frontier at lower cost) needs the GPU run and API
-  baselines — exact commands and cost estimates in `NEXT_STEPS.md`.
+* **Main measured result (GPU, Qwen3.5-9B QLoRA SFT, 1 epoch on FinQA train, full FinQA dev n=883, identical prompt,
+  greedy):** raw-answer accuracy **61.7% → 76.0%** (paired +14.3 pts, 95% CI [+11.3, +17.3], McNemar p≈3e-20);
+  with the model's program executed by the interpreter (tool-assisted) **41.6% → 77.7%**. On the fresh 2026 SEC
+  set (n=303): raw **81.5% → 88.1%** (+6.6, p=0.0002), program-executed **64.4% → 97.0%**. On FinanceBench numeric
+  (n=52, out-of-distribution long PDF text): raw 53.8% → 42.3% (−11.5, n.s.), program-executed 21.2% → 55.8%.
+  The fine-tuned 9B answering directly (31 output tokens) is not significantly better than the base 9B with
+  step-by-step reasoning on val100 (72% vs 65%, p=0.19) while using ~6x fewer output tokens.
+* **Cost:** SFT = 82.6 min on 1x A100 40GB (≈$1.0); whole GPU effort incl. three failed launches **$2.57** of a
+  $10 credit (hard cap $8). Inference (unoptimized HF batch-8): 0.48 s/question ≈ **$0.10 per 1,000 questions**.
+* **CPU proxy (0.8B, FinQA dev val100):** base **6.0% [2.0, 11.0]**; CPU SFT results in §4 when the queue finishes.
+* **Not answered:** frontier comparison (no API keys/budget) — commands and cost estimates in `NEXT_STEPS.md`.
 
 ## 1. Setup and provenance
 See `docs/DECISIONS.md` for model revisions, licenses, environment, and price sources.
@@ -51,19 +58,62 @@ See `docs/DECISIONS.md` for model revisions, licenses, environment, and price so
   by the interpreter — a tool-assisted harness score), **assisted** (prog if the program executes, else raw).
 
 ## 3. Baselines (FinQA dev, identical prompt, greedy, non-thinking, batch 1, CPU)
-<!-- TABLE:BASELINES -->
-| model | n | raw | prog | parsed | valid program | latency s/ex | out tok/ex |
-|---|---|---|---|---|---|---|---|
-| Qwen3.5-0.8B base (smoke20) | 20 | 10.0 [0.0, 25.0] | 5.0 [0.0, 15.0] | 95.0 | 25.0 | 10.9 | 48.8 |
-| Qwen3.5-0.8B base (val100) | 100 | 6.0 [2.0, 11.0] | 1.0 [0.0, 3.0] | 88.0 | 30.0 | 10.3 | 53.6 |
+| model (hardware) | set | n | raw | prog | parsed | valid program | latency s/ex | out tok/ex |
+|---|---|---|---|---|---|---|---|---|
+| Qwen3.5-0.8B base (CPU, batch 1) | smoke20 | 20 | 10.0 [0.0, 25.0] | 5.0 [0.0, 15.0] | 95.0 | 25.0 | 10.9 | 48.8 |
+| Qwen3.5-0.8B base (CPU, batch 1) | val100 | 100 | 6.0 [2.0, 11.0] | 1.0 [0.0, 3.0] | 88.0 | 30.0 | 10.3 | 53.6 |
+| Qwen3.5-9B base, direct (A100, batch 8) | FinQA dev | 883 | 61.7 [58.4, 65.0] | 41.6 [38.3, 45.0] | 99.4 | 78.5 | 0.68 | 37.4 |
+| Qwen3.5-9B base, step-by-step (A100, batch 8) | val100 | 100 | 65.0 [56.0, 75.0] | 27.0 [18.0, 36.0] | 99.0 | 49.0 | 3.21 | 186.9 |
 
 Error profile of the base 0.8B model (val100): 12% no parseable answer (repetition loops that hit the 128-token cap:
 13 truncations), 70% of programs invalid (algebraic notation instead of the DSL, placeholder copying such as
 `table_sum(row, none)`), and arithmetic/selection errors in the rest. Frontier baselines (GPT / Claude / Gemini):
 **pending** (no keys / budget).
 
-## 4. SFT (CPU proxy)
-<!-- FILLED AFTER QUEUE -->
+## 4. SFT results
+### 4.1 Qwen3.5-9B QLoRA on 1x A100 40GB (Vast.ai)
+Recipe (`configs/sft_gpu_q35_9b.yaml` + overrides in `scripts/cloud/vast_job.sh`): 4-bit NF4 base (double quant),
+bf16 compute, LoRA r=32 / α=64 / dropout 0.05 on all linear layers, lr 1e-4 cosine with 3% warmup, paged AdamW 8-bit,
+effective batch 16 (1 × 16 accumulation), max length 4096 (0 examples dropped), gradient checkpointing, 1 epoch over
+**6,160** verified, deduplicated, leak-filtered FinQA train examples (8.87M tokens, 199k supervised), prompt tokens
+masked. 385 optimizer steps in **82.6 min (~1,790 tokens/s)**. Train loss 0.46 → 0.09. Held-out loss on
+`select60` (dev ids disjoint from all reporting subsets): 0.0571 (step 100) → 0.0491 → 0.0436 → **0.0433 (step 385,
+selected)**. Training log: `results/cloud/train_log.jsonl`; selection: `results/cloud/selection.json`.
+
+| eval set | n | base raw | **SFT raw** | paired Δ raw [95% CI], McNemar p | base prog | **SFT prog** | paired Δ prog |
+|---|---|---|---|---|---|---|---|
+| FinQA dev (full) | 883 | 61.7 [58.4, 65.0] | **76.0 [73.0, 78.7]** | **+14.3 [+11.3, +17.3]**, 3e-20 | 41.6 | **77.7** | +36.1 [+32.7, +39.5] |
+| SEC-XBRL fresh (2026 filings) | 303 | 81.5 [76.9, 85.8] | **88.1 [84.5, 91.7]** | **+6.6 [+3.3, +10.2]**, 2e-4 | 64.4 | **97.0** | +32.7 [+27.4, +38.3] |
+| FinanceBench numeric (OOD) | 52 | 53.8 [40.4, 67.3] | 42.3 [28.8, 55.8] | −11.5 [−23.1, 0.0], 0.11 | 21.2 | **55.8** | +34.6 [+21.2, +48.1] |
+
+`raw` = the model's own final number (no tools); `prog` = its program executed by the restricted interpreter
+(tool-assisted; reported separately — this is a harness gain, not a weight gain). Base 9B with step-by-step
+reasoning on FinQA val100: raw 65.0% vs SFT direct 72.0% on the same 100 ids (+7.0 [−2, +16], p=0.19): **not
+significantly different, at ~6x fewer output tokens** (31 vs 187) and ~6.7x lower latency (0.48 vs 3.21 s).
+Exactness (official FinQA style, `exact5` on executed programs) is in `results/summary.md`.
+
+**Error analysis (FinQA dev, 883).** Base: 545 correct; 102 invalid/missing programs; 198 wrong numbers/operations;
+25 correct program but wrong stated answer; 8 sign errors; 5 unparseable. SFT: 671 correct; **2** invalid programs;
+165 wrong numbers/operations; 17 correct program/wrong stated answer; 15 sign errors; 13 percent/fraction scale errors.
+SFT mostly removes format/program failures; remaining errors are value selection/operation choice. **59 of the SFT
+model's 212 errors (28%) fall on items whose FinQA answer string disagrees with `exe_ans`** (label noise).
+
+**FinanceBench.** Out-of-distribution (raw PDF text evidence, definitions in the question, gold rounded to 2 dp). The
+SFT model sets up the calculation much better (prog 21.2 → 55.8) but its *own* multi-step arithmetic is unreliable
+there (e.g. program 17.98244 vs stated answer "17.00112"), so the stated-answer score does not improve. Practical
+implication: deploy the specialist with program execution. *Evaluator correction disclosed:* FinanceBench percent
+golds were first stored in percent units (65.4 for "65.4%") while FinQA golds and the prompt use/allow decimal
+fractions; I normalised them to fractions (`tests/test_split_leakage.py::test_percent_golds_are_fractions`) **after
+seeing the first scores**. Before the fix: base raw 53.8 / SFT raw 28.8 (SFT lenient 42.3); after: 53.8 / 42.3. The
+base model's raw score is unchanged by the fix; pre-fix summaries are kept in `results/cloud/prefix_financebench/`.
+Some FinanceBench golds are coarsely rounded (e.g. ROA 0.0147 stored as "0.01"), which fails a 1% tolerance for any
+model; the primary metric was not loosened.
+
+**Caveats.** One seed, one epoch; GPU decoding used batch 8 (identical for base and SFT); the fine-tuned adapter was
+not retrieved (instance destroyed after results; ~200 MB adapter can be regenerated with the same command, ~$1).
+
+### 4.2 Qwen3.5-0.8B LoRA on CPU (proxy)
+<!-- CPU RESULTS PENDING -->
 
 ## 5. Synthetic data (Phase 3)
 * Generator: `src/finqa/synth/generator.py` builds fictional multi-year statements with accounting identities
@@ -125,11 +175,14 @@ snapshots of their pricing pages, unverified — confirm before use).** USD per 
 **Self-hosted (estimate = GPU $/h ÷ measured throughput at stated utilization).**
 * Measured here (CPU, single stream, batch 1): Qwen3.5-0.8B = 10.3 s/question on 4 vCPU → at an assumed
   $0.20/h for a 4-vCPU instance, **$0.57 per 1,000 questions** — but at 6% accuracy this is not a usable system.
-* 9B on 1x H100 with vLLM (*not measured; assumption*): 5–20 questions/s aggregate at 50–80% utilization
-  (prefill-bound: ~1.4k tokens/question) and $2–4/h → **$0.03–$0.22 per 1,000 questions**. Must be measured on
-  the first GPU run (`scripts/eval_gpu_matrix.sh` records per-example latency; use `--hourly-usd`).
+* **Measured, Qwen3.5-9B on 1x A100 40GB, HF `generate`, batch 8, bf16 (unoptimized):** SFT direct = 0.48 s per
+  question (≈2.1 questions/s) → at the instance's all-in $0.74/h: **$0.10 per 1,000 questions**. Base direct 0.68 s
+  ($0.14/1k); base step-by-step 3.21 s ($0.66/1k). Serving with vLLM/continuous batching would raise throughput
+  several-fold (not measured), so these are upper bounds on self-hosted cost at this utilization.
 
-**Implication:** a fine-tuned 9B model's cost advantage is large against mid/top frontier tiers (~15x for
+**Implication (measured self-hosted cost vs list API prices):** at ~$0.10/1k questions the fine-tuned 9B is ~33x cheaper
+than Claude Sonnet 5.5 direct ($3.3/1k) and ~66x cheaper than Opus 5.5 direct ($6.6/1k) at the token counts above —
+*if* accuracy were comparable, which is untested here. A fine-tuned 9B model's cost advantage is large against mid/top frontier tiers (~15x for
 Sonnet-class direct answers up to >1,000x for Opus/GPT-class reasoning, under the self-hosting assumption above) but roughly **nil against the cheapest frontier tier**
 (Claude Haiku 5.5 ≈ $0.17–0.9 per 1k questions). The commercial case therefore requires the specialist to reach
 the accuracy of the expensive tiers, or to win on data control/latency — not merely to beat Haiku-tier price.

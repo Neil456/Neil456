@@ -76,3 +76,17 @@ def test_programs_verified(finqa):
             v = dsl.execute(r["program"], r["context"]["table"]).value
             g = r["answer"]
             assert (v == g) if isinstance(g, str) else round(v, 5) == round(g, 5)
+
+
+def test_percent_golds_are_fractions():
+    """FinanceBench / TAT-QA percent golds use the FinQA fraction convention (e.g. 65.4% -> 0.654)."""
+    from finqa.answers import ParsedAnswer, match
+    fb = [r for r in load("financebench_eval") if r["meta"].get("numeric_scorable") and r["unit"] == "percent"]
+    assert fb
+    for r in fb:
+        pct = float(r["answer_text"].strip().rstrip(".").replace("%", "").replace(",", ""))
+        assert abs(r["answer"] - pct / 100) < 1e-9, r["id"]
+        assert match(ParsedAnswer("x", pct, True), r["answer"])         # "65.4%" accepted
+        assert match(ParsedAnswer("x", pct / 100, False), r["answer"])  # "0.654" accepted
+    tq = [r for r in load("tatqa_dev") if r["scale"] == "percent"]
+    assert tq and all(abs(r["answer"]) < 50 for r in tq)
