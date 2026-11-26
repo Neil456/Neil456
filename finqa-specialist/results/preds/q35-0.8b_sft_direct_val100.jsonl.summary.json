@@ -1,0 +1,73 @@
+{
+  "n": 50,
+  "n_total_records": 50,
+  "correct": {
+    "mean": 0.42,
+    "ci95": [
+      0.28,
+      0.56
+    ]
+  },
+  "correct_lenient": {
+    "mean": 0.42,
+    "ci95": [
+      0.28,
+      0.56
+    ]
+  },
+  "correct_exact5": {
+    "mean": 0.18,
+    "ci95": [
+      0.08,
+      0.3
+    ]
+  },
+  "prog_correct": {
+    "mean": 0.5,
+    "ci95": [
+      0.36,
+      0.64
+    ]
+  },
+  "prog_correct_exact5": {
+    "mean": 0.48,
+    "ci95": [
+      0.34,
+      0.62
+    ]
+  },
+  "assisted_correct": {
+    "mean": 0.52,
+    "ci95": [
+      0.38,
+      0.66
+    ]
+  },
+  "answer_parsed": {
+    "mean": 1.0,
+    "ci95": [
+      1.0,
+      1.0
+    ]
+  },
+  "program_ok": {
+    "mean": 0.98,
+    "ci95": [
+      0.94,
+      1.0
+    ]
+  },
+  "latency_s": {
+    "mean": 7.419133992195129,
+    "p50": 7.262468099594116,
+    "p90": 9.002434015274048
+  },
+  "tokens": {
+    "input_total": 80585,
+    "output_total": 1467,
+    "input_mean": 1611.7,
+    "output_mean": 29.34
+  },
+  "cost_usd_total": null,
+  "truncated": 0
+}

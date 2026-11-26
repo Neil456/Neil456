@@ -7,7 +7,7 @@
   "created": 1795715904.6278129,
   "max_usd": 5.3,
   "max_hours": 4.0,
-  "destroyed": false,
+  "destroyed": true,
   "bad_machine_ids": [
     154697
   ],
@@ -37,5 +37,9 @@
       "destroy_reason": "FATAL data build (unzip missing in phase-B script)"
     }
   ],
-  "prior_spend_est_usd": 2.62
+  "prior_spend_est_usd": 2.62,
+  "destroy_reason": "phase-B done, payload retrieved (manual fetch)",
+  "destroyed_at": 1795722041.0140808,
+  "final_instance_hours": 1.704,
+  "final_instance_cost_est_usd": 1.17
 }

@@ -1,0 +1,50 @@
+{
+  "config_hash": "40364843302f4862",
+  "spec": {
+    "adapter": "hf",
+    "model": "Qwen/Qwen3.5-9B",
+    "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+    "lora": "/workspace/checkpoints/abl_finqa1600/final",
+    "base_url": null,
+    "dtype": "bfloat16",
+    "threads": null,
+    "load_in_4bit": false,
+    "price_in": null,
+    "price_out": null
+  },
+  "gen_config": {
+    "max_new_tokens": 160,
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "seed": 0,
+    "enable_thinking": false,
+    "reasoning_effort": null,
+    "batch_size": 8
+  },
+  "variant": "direct",
+  "data": "data/processed/sec_fresh_eval.jsonl",
+  "data_sha256": "7481b4c356b4c64778c313f690fe0c1be1f9a509942f59ef03988becab59a0c2",
+  "subset": null,
+  "limit": null,
+  "subset_seed": 0,
+  "n_selected": 303,
+  "code_git_rev": "97ea6f1f0dbd53823fd2db45a6a8e85d89711e26",
+  "started_utc": "2026-11-26T18:30:40Z",
+  "host": "Linux-5.15.0-203-generic-x86_64-with-glibc2.35",
+  "cpu_count": 192,
+  "tag": "",
+  "adapter": {
+    "adapter": "hf",
+    "model": "Qwen/Qwen3.5-9B",
+    "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+    "lora": "/workspace/checkpoints/abl_finqa1600/final",
+    "dtype": "bfloat16",
+    "device": "cuda",
+    "load_in_4bit": false,
+    "torch": "2.9.1+cu128",
+    "transformers": "5.24.1",
+    "threads": 96
+  },
+  "finished_utc": "2026-11-26T18:33:02Z",
+  "spent_usd": 0.0
+}

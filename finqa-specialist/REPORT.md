@@ -18,8 +18,15 @@
   (n=52, out-of-distribution long PDF text): raw 53.8% → 42.3% (−11.5, n.s.), program-executed 21.2% → 55.8%.
   The fine-tuned 9B answering directly (31 output tokens) is not significantly better than the base 9B with
   step-by-step reasoning on val100 (72% vs 65%, p=0.19) while using ~6x fewer output tokens.
-* **Cost:** SFT = 82.6 min on 1x A100 40GB (≈$1.0); whole GPU effort incl. three failed launches **$2.57** of a
-  $10 credit (hard cap $8). Inference (unoptimized HF batch-8): 0.48 s/question ≈ **$0.10 per 1,000 questions**.
+* **Strong open baseline:** the fine-tuned 9B (76.0%) is statistically indistinguishable from **Qwen3.8-27B** (Aug 2026,
+  3x larger; run 4-bit, direct, no thinking) on FinQA dev raw accuracy (75.0%; Δ +1.0 [−1.4, +3.6], p=0.48) and on SEC
+  fresh (88.1% vs 87.8%), at ~2.3x lower latency; with program execution it is far ahead (77.7% vs 45.0%).
+* **Synthetic-data ablation (9B, matched 1,600-example budget):** no significant effect on FinQA dev (74.9% → 73.6%,
+  p=0.16) but +7.3 pts on the templated SEC set (82.2% → 89.4%, p<1e-6; program-executed 86.8% → 100%) — likely
+  template alignment, not broad gains. 1,600 FinQA examples already reach 74.9% vs 76.0% with all 6,160.
+* **Cost:** main SFT = 82.6 min on 1x A100 40GB (≈$1.0); all GPU work (main run, ablation, 27B baseline, five failed or
+  aborted launches) **$3.81** of a $10 credit (hard cap $8). Inference (unoptimized HF batch-8): 0.48 s/question
+  ≈ **$0.10 per 1,000 questions**.
 * **CPU proxy (0.8B, FinQA dev val100):** base **6.0% [2.0, 11.0]**; CPU SFT results in §4 when the queue finishes.
 * **Not answered:** frontier comparison (no API keys/budget) — commands and cost estimates in `NEXT_STEPS.md`.
 
@@ -64,6 +71,12 @@ See `docs/DECISIONS.md` for model revisions, licenses, environment, and price so
 | Qwen3.5-0.8B base (CPU, batch 1) | val100 | 100 | 6.0 [2.0, 11.0] | 1.0 [0.0, 3.0] | 88.0 | 30.0 | 10.3 | 53.6 |
 | Qwen3.5-9B base, direct (A100, batch 8) | FinQA dev | 883 | 61.7 [58.4, 65.0] | 41.6 [38.3, 45.0] | 99.4 | 78.5 | 0.68 | 37.4 |
 | Qwen3.5-9B base, step-by-step (A100, batch 8) | val100 | 100 | 65.0 [56.0, 75.0] | 27.0 [18.0, 36.0] | 99.0 | 49.0 | 3.21 | 186.9 |
+| **Qwen3.8-27B base, 4-bit NF4, direct** (A100, batch 8) | FinQA dev | 883 | 75.0 [72.1, 77.7] | 45.0 [41.7, 48.4] | 99.8 | 95.7 | 1.10 | 32.7 |
+| Qwen3.8-27B base, 4-bit NF4, direct (A100, batch 8) | SEC fresh | 303 | 87.8 [83.8, 91.4] | 65.0 [59.4, 71.0] | 100.0 | 100.0 | 1.0 | 41.0 |
+
+Qwen3.8-27B (`Qwen/Qwen3.8-27B@3756181`, Apache-2.0) is the strong open baseline: same `qwen3_5` architecture family,
+released Aug 2026. It ran 4-bit (to fit a 40GB GPU) with thinking disabled (its default is thinking, effort `xhigh`),
+so this is a lower bound on what it can do; a bf16 run with thinking needs an 80GB GPU and more budget.
 
 Error profile of the base 0.8B model (val100): 12% no parseable answer (repetition loops that hit the 128-token cap:
 13 truncations), 70% of programs invalid (algebraic notation instead of the DSL, placeholder copying such as
@@ -109,6 +122,11 @@ base model's raw score is unchanged by the fix; pre-fix summaries are kept in `r
 Some FinanceBench golds are coarsely rounded (e.g. ROA 0.0147 stored as "0.01"), which fails a 1% tolerance for any
 model; the primary metric was not loosened.
 
+**Fine-tuned 9B vs the strong open baseline (Qwen3.8-27B, 4-bit, direct).** FinQA dev raw 76.0 vs 75.0 (Δ +1.0
+[−1.4, +3.6], p=0.48); SEC fresh raw 88.1 vs 87.8 (Δ +0.3, p=1.0); program-executed 77.7 vs 45.0 and 97.0 vs 65.0
+(the base 27B writes valid but often inexact programs). Latency 0.48 vs 1.10 s/question. A 9B specialist trained for
+≈$1 matches a 3x larger general model here — not a frontier comparison, and the 27B was handicapped (4-bit, no thinking).
+
 **Caveats.** One seed, one epoch; GPU decoding used batch 8 (identical for base and SFT); the fine-tuned adapter was
 not retrieved (instance destroyed after results; ~200 MB adapter can be regenerated with the same command, ~$1).
 
@@ -131,8 +149,22 @@ not retrieved (instance destroyed after results; ~200 MB adapter can be regenera
   2 trivial). Audit sheet with 25 samples for **human review**: `docs/SYNTH_AUDIT.md`. Known weaknesses visible in
   the audit: 2-year `table_max/min` questions are near-trivial; growth of negative outflows (capex) is
   arithmetically right but semantically ambiguous. Automated checks do not guarantee semantic correctness.
-* Ablation (CPU, 0.8B, matched budget of 640 examples: 480 FinQA + 160 synthetic vs 640 FinQA): see §4 when
-  the CPU queue completes.
+* **Ablation at 9B on GPU (matched budget: 1,600 examples, 1 epoch, same recipe as §4.1, final checkpoint, no selection):**
+  A = 1,600 FinQA train; B = the first 1,200 of A + 400 synthetic (train split). The synthetic file regenerated on the GPU
+  host had the same SHA-256 prefix (`dd39b8a7000c83d3`) as the audited pilot.
+
+  | eval | A: FinQA-only raw | B: +synthetic raw | Δ raw [95% CI], p | A prog | B prog |
+  |---|---|---|---|---|---|
+  | FinQA dev (883) | 74.9 [72.0, 77.7] | 73.6 [70.7, 76.2] | −1.2 [−2.9, +0.3], 0.16 | 75.5 | 74.6 |
+  | SEC fresh (303) | 82.2 [77.9, 86.5] | **89.4 [85.8, 92.7]** | **+7.3 [+4.6, +10.2]**, 5e-7 | 86.8 | **100.0** |
+
+  Interpretation: replacing 25% of FinQA examples with verified synthetic ones does not help (or slightly hurts, n.s.)
+  on FinQA itself, but clearly helps on the SEC set. The SEC questions are templated over clean statement tables with
+  the same operation types the generator covers (growth, margins, ratios, comparisons), so this is most likely
+  **template/format alignment rather than evidence of broad generalization**. Recommendation: do not scale synthetic
+  data for FinQA-style accuracy; consider it for well-structured statement-table workloads, after the human audit.
+  Also note: 1,600 FinQA examples reach 74.9% vs 76.0% for all 6,160 (§4.1) — strongly diminishing returns.
+* CPU ablation at 0.8B (480 FinQA + 160 synthetic vs 640 FinQA): queued; see §4.2 if completed.
 
 ### Fresh SEC-XBRL evaluation set
 `src/finqa/sec/xbrl_eval.py` pulls the latest two 10-K filings per company from `data.sec.gov` company facts
