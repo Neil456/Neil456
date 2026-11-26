@@ -2,11 +2,12 @@
 # Deviations from the GPU recipe (configs/sft_gpu_q35_9b.yaml), all forced by CPU throughput:
 #   * 0.8B model instead of 9B; bf16 LoRA instead of 4-bit QLoRA (bitsandbytes 4-bit needs CUDA)
 #   * subset of the FinQA train split (max_train_examples) and max_length 2560 (drops ~1% longest)
-#   * learning rate 2e-4 (short run: ~60-100 optimizer steps)
+#   * learning rate 2e-4 (short run: 40 optimizer steps of 16 examples)
+#   * 640 examples: measured ~23-28 s per 1.4-1.7k-token example (fwd+bwd, grad checkpointing) on 4 vCPU
 model: Qwen/Qwen3.5-0.8B
 revision: 2fc06364715b967f1860aea9cf38778875588b17
 train_files: [data/processed/finqa_train.jsonl]
-max_train_examples: 1200
+max_train_examples: 640
 max_length: 2560
 seed: 0
 lora_r: 16
@@ -20,8 +21,8 @@ epochs: 1
 warmup_ratio: 0.05
 scheduler: cosine
 logging_steps: 1
-save_steps: 15
-eval_steps: 15
+save_steps: 10
+eval_steps: 10
 save_total_limit: 10
 eval_ids_file: results/subsets/finqa_dev_select60.txt
 eval_file: data/processed/finqa_dev.jsonl

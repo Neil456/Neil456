@@ -1,5 +1,6 @@
 """LoRA / QLoRA supervised fine-tuning with TRL SFTTrainer on canonical FinQA examples.
 
+* Labels are built here explicitly (-100 on prompt tokens), so masking does not depend on TRL internals.
 * Prompt = the exact evaluation prompt (finqa.prompts.build_messages, variant "direct") rendered
   with the model's native chat template (non-thinking), target = verified gold program + executed
   answer. Tokenization is done here so the training prefix is byte-identical to the inference
@@ -70,11 +71,11 @@ def build_examples(cfg: dict, tok) -> tuple[list[dict], dict]:
         if len(p_ids) + len(c_ids) > cfg["max_length"]:
             dropped += 1
             continue
-        out.append({"input_ids": p_ids + c_ids, "completion_mask": [0] * len(p_ids) + [1] * len(c_ids), "id": r["id"]})
+        out.append({"input_ids": p_ids + c_ids, "labels": [-100] * len(p_ids) + c_ids, "id": r["id"]})
     st["dropped_too_long"] = dropped
     st["kept"] = len(out)
     st["tokens_total"] = sum(len(x["input_ids"]) for x in out)
-    st["completion_tokens_total"] = sum(sum(x["completion_mask"]) for x in out)
+    st["completion_tokens_total"] = sum(sum(1 for t in x["labels"] if t != -100) for x in out)
     return out, st
 
 
@@ -116,7 +117,7 @@ def main():
                 p = tok(prompt, add_special_tokens=False)["input_ids"]
                 c = tok(build_target(r) + "<|im_end|>\n", add_special_tokens=False)["input_ids"]
                 if len(p) + len(c) <= cfg["max_length"]:
-                    ev.append({"input_ids": p + c, "completion_mask": [0] * len(p) + [1] * len(c)})
+                    ev.append({"input_ids": p + c, "labels": [-100] * len(p) + c})
         eval_ds = Dataset.from_list(ev)
         print(f"[sft] eval examples: {len(ev)}", flush=True)
 
@@ -141,7 +142,7 @@ def main():
         num_train_epochs=cfg.get("epochs", 1),
         max_steps=cfg.get("max_steps", -1),
         lr_scheduler_type=cfg.get("scheduler", "cosine"),
-        warmup_ratio=cfg.get("warmup_ratio", 0.03),
+        warmup_steps=cfg.get("warmup_ratio", 0.03),  # transformers>=5: float in [0,1) = ratio
         weight_decay=cfg.get("weight_decay", 0.0),
         logging_steps=cfg.get("logging_steps", 1),
         save_steps=cfg.get("save_steps", 50),
@@ -176,8 +177,8 @@ def main():
                          processing_class=tok, peft_config=lcfg, callbacks=[JsonlLogger()])
     trainer.model.print_trainable_parameters()
 
-    # sanity: label masking — only completion tokens contribute
-    batch = trainer.data_collator([ds[0]])
+    # sanity: label masking -- only completion tokens contribute (checked on the trainer's prepared dataset)
+    batch = trainer.data_collator([trainer.train_dataset[0]])
     n_lab = int((batch["labels"] != -100).sum())
     print(f"[sft] masking check: {n_lab} supervised tokens of {batch['input_ids'].shape[1]}", flush=True)
     assert 0 < n_lab < batch["input_ids"].shape[1]
