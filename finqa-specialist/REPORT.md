@@ -144,8 +144,9 @@ Held-out loss (select60): 0.361 → 0.298 → 0.252 → **0.245 (step 40, select
 Paired: raw **+39 pts [+29, +49]** (40 items fixed, 1 broken; exact McNemar p<1e-10); prog +52 pts [+42, +62]. The tiny
 model learns the output format and number selection quickly; its own arithmetic stays weak (prog > raw; exact5 15%).
 Latency here (mean 23 s, median 7 s per question) is inflated: a GRPO API check ran concurrently on the same 4 vCPUs.
-Further CPU runs (0.8B on SEC/FinanceBench, 0.8B synthetic ablation, 2B baseline, 0.8B GRPO smoke) are appended to
-`results/summary.md` as they complete.
+On the fresh SEC set (n=303) the same 0.8B pair goes from **4.3% to 58.4%** raw (+54.1 [+48.2, +60.1]) and from 0% to
+83.8% program-executed. FinanceBench and the 2B baseline are in `results/summary.md`. The CPU synthetic ablation and CPU
+GRPO smoke were skipped as superseded by the 9B GPU runs (§5, §6).
 
 ## 5. Synthetic data (Phase 3)
 * Generator: `src/finqa/synth/generator.py` builds fictional multi-year statements with accounting identities
@@ -178,7 +179,8 @@ Further CPU runs (0.8B on SEC/FinanceBench, 0.8B synthetic ablation, 2B baseline
   **template/format alignment rather than evidence of broad generalization**. Recommendation: do not scale synthetic
   data for FinQA-style accuracy; consider it for well-structured statement-table workloads, after the human audit.
   Also note: 1,600 FinQA examples reach 74.9% vs 76.0% for all 6,160 (§4.1) — strongly diminishing returns.
-* CPU ablation at 0.8B (480 FinQA + 160 synthetic vs 640 FinQA): queued; see §4.2 if completed.
+* The planned CPU ablation at 0.8B (480 FinQA + 160 synthetic vs 640 FinQA, ~6 h of CPU) was **skipped**: the 9B GPU
+  ablation above answers the same question at the scale that matters.
 
 ### Fresh SEC-XBRL evaluation set
 `src/finqa/sec/xbrl_eval.py` pulls the latest two 10-K filings per company from `data.sec.gov` company facts
