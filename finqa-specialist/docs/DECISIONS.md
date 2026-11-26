@@ -5,9 +5,14 @@
 * No Kaggle / Colab / RunPod / Vast / Lambda credentials; no OpenAI / Anthropic / Gemini API keys configured.
   (Generic AWS credential variables exist in the container environment; they were not inspected or used.)
 * Network: originally HF / SEC / GPU providers blocked. With the user's approval a personal environment
-  `neil456-finqa` was created allowing Hugging Face hosts + `www.sec.gov`, `data.sec.gov`.
+  `neil456-finqa` was created allowing Hugging Face hosts + `www.sec.gov`, `data.sec.gov`; it was later switched to
+  unrestricted network access by the user. The agent proxy strips `Authorization` headers to console.vast.ai, so the
+  Vast key is sent as a query parameter.
   `www.sec.gov` still returns 403 (requires contact UA); `data.sec.gov` XBRL API works with a generic UA.
-* **Spend: $0.** No paid provisioning or paid API calls were made (none authorized).
+* **Spend:** initially $0 (nothing authorized). Mid-session the user supplied a Vast.ai key with a **$10 credit** and
+  authorized its use; I set a hard cap of $8. Actual GPU spend **$4.69** (1x A100 40GB instances; see REPORT §7).
+  No paid frontier-API calls were made (no keys). The Vast key is stored only in the ephemeral container's
+  `~/.config/vastai/vast_api_key`, was never committed or sent to rented hosts, and should be rotated.
 
 ## Model selection (Hugging Face API, 2026-11-26)
 | role | repo | revision | license | params | notes |

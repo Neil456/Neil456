@@ -1,0 +1,50 @@
+{
+  "config_hash": "2209f482108baa3a",
+  "spec": {
+    "adapter": "hf",
+    "model": "Qwen/Qwen3.5-0.8B",
+    "revision": "2fc06364715b967f1860aea9cf38778875588b17",
+    "lora": null,
+    "base_url": null,
+    "dtype": "bfloat16",
+    "threads": null,
+    "load_in_4bit": false,
+    "price_in": null,
+    "price_out": null
+  },
+  "gen_config": {
+    "max_new_tokens": 128,
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "seed": 0,
+    "enable_thinking": false,
+    "reasoning_effort": null,
+    "batch_size": 1
+  },
+  "variant": "direct",
+  "data": "data/processed/financebench_eval.jsonl",
+  "data_sha256": "48034bae1b13178531781a65c25981a7dd33afd8c5b9a9a239283edda08be47e",
+  "subset": null,
+  "limit": null,
+  "subset_seed": 0,
+  "n_selected": 52,
+  "code_git_rev": "aa99f2dc3cd3eb5a536d518d5692ae3ef0c632ed",
+  "started_utc": "2026-11-26T21:15:27Z",
+  "host": "Linux-6.18.44-fc-v880-x86_64-with-glibc2.39",
+  "cpu_count": 4,
+  "tag": "",
+  "adapter": {
+    "adapter": "hf",
+    "model": "Qwen/Qwen3.5-0.8B",
+    "revision": "2fc06364715b967f1860aea9cf38778875588b17",
+    "lora": null,
+    "dtype": "bfloat16",
+    "device": "cpu",
+    "load_in_4bit": false,
+    "torch": "2.9.1+cu128",
+    "transformers": "5.24.1",
+    "threads": 4
+  },
+  "finished_utc": "2026-11-26T21:26:57Z",
+  "spent_usd": 0.0
+}
