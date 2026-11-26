@@ -4,13 +4,14 @@
 > explicitly labeled *estimate* or *pending*. No results were fabricated; frontier baselines are pending.
 
 ## 0. TL;DR
-* **Environment reality:** CPU-only container (4 vCPU, 15 GB RAM, no GPU), no GPU-provider or frontier-API
-  credentials, $0 authorized spend. Everything requiring a GPU or paid API was **prepared, not run**.
+* **Environment reality:** the session container is CPU-only (4 vCPU, 15 GB RAM, no GPU) with no frontier-API keys.
+  Mid-session the user authorized a **$10 Vast.ai credit** (hard cap set at $8); all 9B/27B work ran on rented 1x A100
+  40GB instances. Paid frontier APIs were **not** used (no keys) — frontier baselines remain pending.
 * **Built and verified:** canonical data pipeline (FinQA / TAT-QA / ConvFinQA / FinanceBench + a fresh
   SEC-XBRL set), restricted DSL interpreter that reproduces the official FinQA evaluator on **all** gold programs
   (train 6,251 · dev 883 · test 1,147), numeric answer matcher, resumable/cached evaluation runner with
   local + API adapters and budget guards, TRL SFT/GRPO scripts, verifiable reward with adversarial tests,
-  verified synthetic generator, cloud launch kit. 82 tests pass.
+  verified synthetic generator, cloud launch kit with hard budget caps. 84 tests pass.
 * **Main measured result (GPU, Qwen3.5-9B QLoRA SFT, 1 epoch on FinQA train, full FinQA dev n=883, identical prompt,
   greedy):** raw-answer accuracy **61.7% → 76.0%** (paired +14.3 pts, 95% CI [+11.3, +17.3], McNemar p≈3e-20);
   with the model's program executed by the interpreter (tool-assisted) **41.6% → 77.7%**. On the fresh 2026 SEC
@@ -27,13 +28,14 @@
 * **Cost:** main SFT = 82.6 min on 1x A100 40GB (≈$1.0); all GPU work (main SFT run, synthetic ablation, 27B baseline,
   GRPO smoke test, and failed or aborted launches) **$4.69** of a $10 credit (hard cap $8). Inference (unoptimized HF batch-8): 0.48 s/question
   ≈ **$0.10 per 1,000 questions**.
-* **CPU proxy (0.8B, FinQA dev val100):** base **6.0% [2.0, 11.0]**; CPU SFT results in §4 when the queue finishes.
+* **CPU proxy (0.8B, LoRA SFT on 630 examples in 5.6 h on 4 vCPU):** FinQA dev val100 raw **6.0% → 45.0%** (+39 pts
+  [+29, +49]); SEC fresh 4.3% → 58.4%.
 * **Not answered:** frontier comparison (no API keys/budget) — commands and cost estimates in `NEXT_STEPS.md`.
 
 ## 1. Setup and provenance
 See `docs/DECISIONS.md` for model revisions, licenses, environment, and price sources.
 * Models: `Qwen/Qwen3.5-0.8B@2fc0636` (CPU proxy), `Qwen/Qwen3.5-2B@15852e8` (CPU baseline),
-  `Qwen/Qwen3.5-9B@c202236` (GPU target, prepared), `Qwen/Qwen3.8-27B@3756181` (strong open baseline, prepared).
+  `Qwen/Qwen3.5-9B@c202236` (GPU fine-tuning target), `Qwen/Qwen3.8-27B@3756181` (strong open baseline, 4-bit eval).
   All Apache-2.0. `transformers 5.24.1`, `trl 1.19.0`, `peft 0.22.0`, `torch 2.9.1` (CPU).
 * Data (official splits preserved; hashes in `results/data_manifest.json`):
 
@@ -64,7 +66,7 @@ See `docs/DECISIONS.md` for model revisions, licenses, environment, and price so
 * Scores reported separately: **raw** (model's own stated answer — no tools), **prog** (model's program executed
   by the interpreter — a tool-assisted harness score), **assisted** (prog if the program executes, else raw).
 
-## 3. Baselines (FinQA dev, identical prompt, greedy, non-thinking, batch 1, CPU)
+## 3. Baselines (identical prompt, greedy, non-thinking unless noted; hardware per row)
 | model (hardware) | set | n | raw | prog | parsed | valid program | latency s/ex | out tok/ex |
 |---|---|---|---|---|---|---|---|---|
 | Qwen3.5-0.8B base (CPU, batch 1) | smoke20 | 20 | 10.0 [0.0, 25.0] | 5.0 [0.0, 15.0] | 95.0 | 25.0 | 10.9 | 48.8 |
@@ -243,17 +245,17 @@ snapshots of their pricing pages, unverified — confirm before use).** USD per 
   several-fold (not measured), so these are upper bounds on self-hosted cost at this utilization.
 
 **Implication (measured self-hosted cost vs list API prices):** at ~$0.10/1k questions the fine-tuned 9B is ~33x cheaper
-than Claude Sonnet 5.5 direct ($3.3/1k) and ~66x cheaper than Opus 5.5 direct ($6.6/1k) at the token counts above —
-*if* accuracy were comparable, which is untested here. A fine-tuned 9B model's cost advantage is large against mid/top frontier tiers (~15x for
-Sonnet-class direct answers up to >1,000x for Opus/GPT-class reasoning, under the self-hosting assumption above) but roughly **nil against the cheapest frontier tier**
-(Claude Haiku 5.5 ≈ $0.17–0.9 per 1k questions). The commercial case therefore requires the specialist to reach
+than Claude Sonnet 5.5 direct ($3.3/1k), ~66x cheaper than Opus 5.5 direct ($6.6/1k), and ~350–520x cheaper than
+Opus/GPT-class models answering with ~1.5k reasoning tokens — *if* accuracy were comparable, which is untested here.
+The advantage is roughly **nil against the cheapest frontier tier** (Claude Haiku 5.5 ≈ $0.17–0.9 per 1k questions). The commercial case therefore requires the specialist to reach
 the accuracy of the expensive tiers, or to win on data control/latency — not merely to beat Haiku-tier price.
 
-**Training cost (estimate):** 9B QLoRA SFT, ~18M training tokens (6.2k examples × 1.45k tokens × 2 epochs) on 1x
-H100 at an assumed 2–4k tokens/s → 1.3–2.5 h + ~0.5 h eval → **~$4–$13** at $1.9–$4.3/h (RunPod/Vast/Lambda
-ranges in `docs/DECISIONS.md`). **Actual spend: $4.69** (Vast.ai credit $10.00 → $5.31), covering the main 9B SFT
-run (~$1.9 instance time), the ablation + 27B job (~$1.2), the GRPO smoke attempts (~$0.9) and five failed or aborted
-launches (~$0.7: China-located host, a stuck download, a stuck pip install, a missing `unzip`, and the first GRPO OOM).
+**Training cost (measured):** 9B QLoRA SFT, 1 epoch = 8.87M tokens in 82.6 min on 1x A100 40GB (~1,790 tokens/s) at
+$0.74/h ≈ **$1.0** (2 epochs ≈ $2; the whole job incl. setup and all evaluations was 2.56 h ≈ $1.9).
+**Actual spend: $4.69** (Vast.ai credit $10.00 → $5.31; the credit drop is authoritative). Approximate breakdown from
+instance-hours × rate: main 9B SFT + evals ≈ $1.9; synthetic ablation + 27B baseline ≈ $1.1; two GRPO smoke attempts
+≈ $0.8; four failed launches ≈ $0.6 (a China-located host destroyed within minutes, a stuck dataset download, a stuck pip
+install, a missing `unzip`); the remainder is storage and rounding.
 
 ## 8. Limitations
 * **No frontier baselines** (no API keys/budget): every frontier statement is a cost estimate, not an accuracy
