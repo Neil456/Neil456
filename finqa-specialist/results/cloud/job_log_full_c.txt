@@ -1,0 +1,89 @@
+Thu Nov 26 20:12:07 UTC 2026
+Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+Get:2 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  InRelease [1578 B]
+Hit:3 http://archive.ubuntu.com/ubuntu jammy InRelease
+Get:4 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+Get:5 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [4564 kB]
+Get:6 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  Packages [3299 kB]
+Get:7 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1331 kB]
+Get:8 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [8139 kB]
+Get:9 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+Get:10 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [4899 kB]
+Get:11 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [8446 kB]
+Get:12 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1632 kB]
+Fetched 32.7 MB in 3s (12.7 MB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+curl is already the newest version (7.81.0-1ubuntu1.30).
+less is already the newest version (590-1ubuntu0.22.04.3).
+openssh-server is already the newest version (1:8.9p1-3ubuntu0.18).
+software-properties-common is already the newest version (0.99.22.9).
+sudo is already the newest version (1.9.9-1ubuntu2.7).
+tmux is already the newest version (3.2a-4ubuntu0.3).
+wget is already the newest version (1.21.2-2ubuntu1.5).
+The following packages will be upgraded:
+  locales
+1 upgraded, 0 newly installed, 0 to remove and 117 not upgraded.
+Need to get 4245 kB of archives.
+After this operation, 0 B of additional disk space will be used.
+Get:1 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 locales all 2.35-0ubuntu3.18 [4245 kB]
+debconf: delaying package configuration, since apt-utils is not installed
+Fetched 4245 kB in 1s (4118 kB/s)
+(Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading d
+Preparing to unpack .../locales_2.35-0ubuntu3.18_all.deb ...
+Unpacking locales (2.35-0ubuntu3.18) over (2.35-0ubuntu3.15) ...
+Setting up locales (2.35-0ubuntu3.18) ...
+Generating locales (this might take a while)...
+Generation complete.
+Reading package lists...
+Building dependency tree...
+Reading state information...
+git is already the newest version (1:2.34.1-1ubuntu1.18).
+rsync is already the newest version (3.2.7-0ubuntu0.22.04.7).
+0 upgraded, 0 newly installed, 0 to remove and 117 not upgraded.
+rm: cannot remove '/etc/forward_port2': No such file or directory
+Server listening on 0.0.0.0 port 22.
+Server listening on :: port 22.
+Thu Nov 26 20:12:19 UTC 2026
+Warning: Permanently added 'ssh6.vast.ai' (ED25519) to the list of known hosts.
+[finqa-job 20:12:20] GPU: NVIDIA A100-SXM4-40GB, 40960 MiB; code 0cea181
+[finqa-job 20:12:20] pip install
+Successfully installed accelerate-1.16.0 annotated-doc-0.0.7 annotated-types-0.8.0 anyio-4.16.0 bitsandbytes-0.50.2 click-8.5.1 datasets-5.2.0 dill-0.4.1 einops-0.8.2 fla-core-0.6.0 flash-linear-attention-0.6.0 h11-0.16.0 hf-xet-1.8.0 httpcore-1.0.9 httpcore2-2.16.2 httpx-0.29.0 httpx2-2.16.2 huggin
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[download] done
+}
+[finqa-job 20:13:09] data built
+[finqa-job 20:13:09] SFT init start
+[sft] data: {"loaded": 6194, "usable_verified_no_leak": 6160, "selected": 1600, "dropped_too_long": 0, "kept": 1600, "tokens_total": 2281264, "completion_tokens_total": 51764}
+[sft] masking check: 53 supervised tokens of 1793
+[sft] done in 20.9 min
+[finqa-job 20:35:24] eval SFT init (val300)
+}
+[finqa-job 20:38:42] GRPO start
+Traceback (most recent call last):
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 5.26 GiB. GPU 0 has a total capacity of 39.52 GiB of which 5.03 GiB is free. Including non-PyTorch memory, this process has 34.47 GiB memory in use. Of the allocated memory 32.27 GiB is allocated by PyTorch, and 1.70 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CO
+[finqa-job 20:40:05] GRPO produced no adapter
+[finqa-job 20:40:05] PAYLOAD_BEGIN 10817 bytes
+[finqa-job 20:40:05] PAYLOAD_END
+[finqa-job 20:40:05] FINQA_JOB_DONE

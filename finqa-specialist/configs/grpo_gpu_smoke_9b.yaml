@@ -6,11 +6,11 @@ revision: c202236235762e1c871ad0ccb60c8ee5ba337b9a
 init_adapter: /workspace/checkpoints/abl_finqa1600/final
 train_files: [data/processed/finqa_train.jsonl]
 skip_first: 1600
-max_train_examples: 240        # 30 steps x 8 prompts
+max_train_examples: 120        # 30 steps x 4 prompts
 num_generations: 8
-per_device_batch_size: 8       # completions per device step (= 1 prompt x 8 generations)
-grad_accum: 8                  # 8 prompts per optimizer step
-max_completion_length: 128
+per_device_batch_size: 2       # completions per micro-step (8 OOM'd on A100 40GB: ~1.5k-token seqs x 248k vocab logits)
+grad_accum: 16                 # 32 completions = 4 prompts x 8 generations per optimizer step
+max_completion_length: 96      # SFT outputs average ~31 tokens
 temperature: 1.0
 learning_rate: 1.0e-6
 beta: 0.0

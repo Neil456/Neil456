@@ -7,7 +7,7 @@
   "created": 1795723904.649246,
   "max_usd": 4.0,
   "max_hours": 2.0,
-  "destroyed": false,
+  "destroyed": true,
   "bad_machine_ids": [
     154697
   ],
@@ -45,5 +45,8 @@
       "destroy_reason": "phase-B done, payload retrieved (manual fetch)"
     }
   ],
-  "prior_spend_est_usd": 3.81
+  "prior_spend_est_usd": 3.81,
+  "destroy_reason": "phase-C done (GRPO step failed?), payload retrieved",
+  "destroyed_at": 1795725753.4028645,
+  "final_instance_hours": 0.513
 }
