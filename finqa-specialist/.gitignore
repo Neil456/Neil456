@@ -13,3 +13,4 @@ wandb/
 .env
 *.key
 logs/
+results/cloud/job_log_tail.txt
