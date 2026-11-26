@@ -1,0 +1,261 @@
+{
+  "n_items": 303,
+  "n_companies": 40,
+  "companies": {
+    "Apple": {
+      "filed": "2026-11-03",
+      "fy_end": "2026-09-26",
+      "n_items": 10,
+      "dropped": {}
+    },
+    "Microsoft": {
+      "filed": "2026-07-29",
+      "fy_end": "2026-06-30",
+      "n_items": 10,
+      "dropped": {}
+    },
+    "Alphabet": {
+      "filed": "2026-02-05",
+      "fy_end": "2025-12-31",
+      "n_items": 4,
+      "dropped": {
+        "revenue": "prior year not in previous filing"
+      }
+    },
+    "Amazon": {
+      "filed": "2026-02-06",
+      "fy_end": "2025-12-31",
+      "n_items": 6,
+      "dropped": {}
+    },
+    "Meta Platforms": {
+      "filed": "2026-01-29",
+      "fy_end": "2025-12-31",
+      "n_items": 10,
+      "dropped": {}
+    },
+    "NVIDIA": {
+      "filed": "2026-02-25",
+      "fy_end": "2026-01-25",
+      "n_items": 8,
+      "dropped": {}
+    },
+    "Walmart": {
+      "filed": "2026-03-13",
+      "fy_end": "2026-01-31",
+      "n_items": 8,
+      "dropped": {}
+    },
+    "Johnson & Johnson": {
+      "filed": "2026-02-11",
+      "fy_end": "2025-12-28",
+      "n_items": 8,
+      "dropped": {}
+    },
+    "Procter & Gamble": {
+      "filed": "2026-08-04",
+      "fy_end": "2026-06-30",
+      "n_items": 10,
+      "dropped": {}
+    },
+    "Coca-Cola": {
+      "filed": "2026-02-20",
+      "fy_end": "2025-12-31",
+      "n_items": 8,
+      "dropped": {}
+    },
+    "PepsiCo": {
+      "filed": "2026-02-03",
+      "fy_end": "2025-12-27",
+      "n_items": 8,
+      "dropped": {}
+    },
+    "Intel": {
+      "filed": "2026-01-23",
+      "fy_end": "2025-12-27",
+      "n_items": 7,
+      "dropped": {}
+    },
+    "Cisco": {
+      "filed": "2026-09-02",
+      "fy_end": "2026-07-25",
+      "n_items": 10,
+      "dropped": {}
+    },
+    "Oracle": {
+      "filed": "2026-06-22",
+      "fy_end": "2026-05-31",
+      "n_items": 8,
+      "dropped": {}
+    },
+    "IBM": {
+      "filed": "2026-02-24",
+      "fy_end": "2025-12-31",
+      "n_items": 8,
+      "dropped": {}
+    },
+    "Home Depot": {
+      "filed": "2026-03-18",
+      "fy_end": "2026-02-01",
+      "n_items": 7,
+      "dropped": {}
+    },
+    "Costco": {
+      "filed": "2026-10-07",
+      "fy_end": "2026-08-30",
+      "n_items": 9,
+      "dropped": {}
+    },
+    "Nike": {
+      "filed": "2026-07-15",
+      "fy_end": "2026-05-31",
+      "n_items": 6,
+      "dropped": {}
+    },
+    "McDonald's": {
+      "filed": "2026-02-24",
+      "fy_end": "2025-12-31",
+      "n_items": 7,
+      "dropped": {}
+    },
+    "Caterpillar": {
+      "filed": "2026-02-13",
+      "fy_end": "2025-12-31",
+      "n_items": 7,
+      "dropped": {}
+    },
+    "3M": {
+      "filed": "2026-02-03",
+      "fy_end": "2025-12-31",
+      "n_items": 9,
+      "dropped": {}
+    },
+    "Honeywell": {
+      "filed": "2026-02-17",
+      "fy_end": "2025-12-31",
+      "n_items": 1,
+      "dropped": {
+        "revenue": "restated (cross-filing mismatch)",
+        "cost of revenue": "restated (cross-filing mismatch)",
+        "research and development": "restated (cross-filing mismatch)",
+        "operating income": "restated (cross-filing mismatch)",
+        "capital expenditures": "restated (cross-filing mismatch)"
+      }
+    },
+    "Pfizer": {
+      "filed": "2026-02-26",
+      "fy_end": "2025-12-31",
+      "n_items": 7,
+      "dropped": {}
+    },
+    "Merck": {
+      "filed": "2026-02-24",
+      "fy_end": "2025-12-31",
+      "n_items": 7,
+      "dropped": {}
+    },
+    "AbbVie": {
+      "filed": "2026-02-20",
+      "fy_end": "2025-12-31",
+      "n_items": 8,
+      "dropped": {}
+    },
+    "Chevron": {
+      "filed": "2026-02-24",
+      "fy_end": "2025-12-31",
+      "n_items": 6,
+      "dropped": {}
+    },
+    "Exxon Mobil": {
+      "filed": "2026-02-18",
+      "fy_end": "2025-12-31",
+      "n_items": 6,
+      "dropped": {
+        "research and development": "restated (cross-filing mismatch)"
+      }
+    },
+    "Verizon": {
+      "filed": "2026-02-17",
+      "fy_end": "2025-12-31",
+      "n_items": 5,
+      "dropped": {}
+    },
+    "Comcast": {
+      "filed": "2026-02-03",
+      "fy_end": "2025-12-31",
+      "n_items": 7,
+      "dropped": {}
+    },
+    "Walt Disney": {
+      "filed": "2026-11-17",
+      "fy_end": "2026-10-03",
+      "n_items": 7,
+      "dropped": {}
+    },
+    "UPS": {
+      "filed": "2026-02-17",
+      "fy_end": "2025-12-31",
+      "n_items": 7,
+      "dropped": {}
+    },
+    "Lockheed Martin": {
+      "filed": "2026-01-29",
+      "fy_end": "2025-12-31",
+      "n_items": 8,
+      "dropped": {}
+    },
+    "Netflix": {
+      "filed": "2026-01-23",
+      "fy_end": "2025-12-31",
+      "n_items": 10,
+      "dropped": {}
+    },
+    "Adobe": {
+      "filed": "2026-01-15",
+      "fy_end": "2025-11-28",
+      "n_items": 9,
+      "dropped": {}
+    },
+    "Salesforce": {
+      "filed": "2026-03-02",
+      "fy_end": "2026-01-31",
+      "n_items": 10,
+      "dropped": {}
+    },
+    "Qualcomm": {
+      "filed": "2026-11-04",
+      "fy_end": "2026-09-27",
+      "n_items": 8,
+      "dropped": {}
+    },
+    "Texas Instruments": {
+      "filed": "2026-02-06",
+      "fy_end": "2025-12-31",
+      "n_items": 10,
+      "dropped": {}
+    },
+    "Advanced Micro Devices": {
+      "filed": "2026-02-04",
+      "fy_end": "2025-12-27",
+      "n_items": 9,
+      "dropped": {}
+    },
+    "Abbott Laboratories": {
+      "filed": "2026-02-20",
+      "fy_end": "2025-12-31",
+      "n_items": 9,
+      "dropped": {}
+    },
+    "Eli Lilly": {
+      "filed": "2026-02-12",
+      "fy_end": "2025-12-31",
+      "n_items": 1,
+      "dropped": {
+        "revenue": "restated (cross-filing mismatch)",
+        "cost of revenue": "restated (cross-filing mismatch)",
+        "operating cash flow": "restated (cross-filing mismatch)",
+        "total assets": "restated (cross-filing mismatch)"
+      }
+    }
+  }
+}

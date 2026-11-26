@@ -1,0 +1,23 @@
+# GRPO smoke test on CPU: measures that rollouts, reward, and policy update run end to end.
+# Not expected to improve accuracy (a handful of steps). Starts from the CPU SFT adapter if present.
+model: Qwen/Qwen3.5-0.8B
+revision: 2fc06364715b967f1860aea9cf38778875588b17
+init_adapter: null            # e.g. checkpoints/sft_cpu_q35_0.8b/final
+train_files: [data/synth/pilot.jsonl]   # short synthetic docs keep CPU rollouts cheap
+max_train_examples: 16
+num_generations: 4
+per_device_batch_size: 4
+grad_accum: 1
+max_completion_length: 64
+temperature: 1.0
+learning_rate: 1.0e-5
+beta: 0.0
+loss_type: dapo
+max_steps: 4
+lora_r: 16
+lora_alpha: 32
+bf16: true
+gradient_checkpointing: true
+threads: 4
+log_completions: true
+output_dir: checkpoints/grpo_cpu_smoke

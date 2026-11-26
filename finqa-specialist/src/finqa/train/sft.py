@@ -42,10 +42,22 @@ def build_examples(cfg: dict, tok) -> tuple[list[dict], dict]:
     rows = [r for r in rows if r["split"] == "train" and r.get("program") and r["meta"].get("program_verified", True)
             and not r["meta"].get("leak_doc") and not r["meta"].get("leak_table")]
     st["usable_verified_no_leak"] = len(rows)
-    rows.sort(key=lambda r: r["id"])
-    random.Random(cfg.get("seed", 0)).shuffle(rows)
-    if cfg.get("max_train_examples"):
-        rows = rows[: cfg["max_train_examples"]]
+    if cfg.get("mix"):
+        # per-source counts, each source shuffled with the same seed as a single-source run, so the
+        # FinQA part of a mixed run is a prefix (subset) of the FinQA-only run's selection.
+        picked = []
+        for src, n in cfg["mix"].items():
+            rs = sorted([r for r in rows if r["source"] == src], key=lambda r: r["id"])
+            random.Random(cfg.get("seed", 0)).shuffle(rs)
+            picked += rs[:n]
+            st[f"mix_{src}"] = min(n, len(rs))
+        rows = picked
+        random.Random(cfg.get("seed", 0) + 1).shuffle(rows)
+    else:
+        rows.sort(key=lambda r: r["id"])
+        random.Random(cfg.get("seed", 0)).shuffle(rows)
+        if cfg.get("max_train_examples"):
+            rows = rows[: cfg["max_train_examples"]]
     st["selected"] = len(rows)
     out, dropped = [], 0
     eos = cfg.get("eos_text", "<|im_end|>\n")
