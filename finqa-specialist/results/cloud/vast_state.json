@@ -1,13 +1,13 @@
 {
-  "instance_id": 62710550,
-  "offer_id": 62381177,
-  "machine_id": 140451,
+  "instance_id": 62730679,
+  "offer_id": 61361707,
+  "machine_id": 36394,
   "gpu": "A100 SXM4",
-  "dph": 0.75,
-  "created": 1795705928.562658,
-  "max_usd": 7.3,
-  "max_hours": 8.0,
-  "destroyed": true,
+  "dph": 0.6988888888888889,
+  "created": 1795715530.3775551,
+  "max_usd": 5.4,
+  "max_hours": 4.0,
+  "destroyed": false,
   "bad_machine_ids": [
     154697
   ],
@@ -19,11 +19,15 @@
       "created": 1795703775.7972026,
       "destroyed_at": 1795705901.830135,
       "destroy_reason": "stuck in pip install 34 min with idle CPU (suspected host network issue)"
+    },
+    {
+      "instance_id": 62710550,
+      "gpu": "A100 SXM4",
+      "dph": 0.75,
+      "created": 1795705928.562658,
+      "destroyed_at": 1795715139.4027927,
+      "destroy_reason": "job done, payload retrieved (manual fetch)"
     }
   ],
-  "prior_spend_est_usd": 0.65,
-  "destroy_reason": "job done, payload retrieved (manual fetch)",
-  "destroyed_at": 1795715139.4027927,
-  "final_instance_hours": 2.558,
-  "final_instance_cost_est_usd": 1.89
+  "prior_spend_est_usd": 2.57
 }
