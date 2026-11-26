@@ -158,14 +158,15 @@ def show(iid):
     return d.get("instances", d) if isinstance(d, dict) else d
 
 
-def fetch_logs(iid, tail="200000") -> str:
+def fetch_logs(iid, tail="400", wait_s=90) -> str:
     r = api("PUT", f"/instances/request_logs/{iid}/", json={"tail": tail})
     if not r.ok:
         return ""
-    url = r.json().get("result_url")
+    j = r.json()
+    url = j.get("result_url") or j.get("temp_download_url")
     if not url:
         return ""
-    for _ in range(40):
+    for _ in range(int(wait_s / 1.5)):
         time.sleep(1.5)
         g = requests.get(url, timeout=60)
         if g.status_code == 200:
@@ -215,6 +216,8 @@ def cmd_watch(a):
         elapsed_h = (time.time() - s["created"]) / 3600
         spent_est = elapsed_h * s["dph"]
         logs = fetch_logs(iid) if status == "running" else ""
+        if "FINQA_JOB_DONE" in logs or "PAYLOAD_END" in logs:
+            logs = fetch_logs(iid, tail="30000", wait_s=300)  # full payload
         prog = [l for l in logs.splitlines() if l.startswith("[finqa-job") or "'loss'" in l or "eval_loss" in l]
         tail = "\n".join(prog[-6:])
         new = tail if tail != last_print else "(no new job lines)"
