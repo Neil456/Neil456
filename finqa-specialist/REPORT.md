@@ -147,7 +147,8 @@ Paired: raw **+39 pts [+29, +49]** (40 items fixed, 1 broken; exact McNemar p<1e
 model learns the output format and number selection quickly; its own arithmetic stays weak (prog > raw; exact5 15%).
 Latency here (mean 23 s, median 7 s per question) is inflated: a GRPO API check ran concurrently on the same 4 vCPUs.
 On the fresh SEC set (n=303) the same 0.8B pair goes from **4.3% to 58.4%** raw (+54.1 [+48.2, +60.1]) and from 0% to
-83.8% program-executed. FinanceBench and the 2B baseline are in `results/summary.md`. The CPU synthetic ablation and CPU
+83.8% program-executed. On FinanceBench numeric (n=52): raw 9.6% → 17.3% (+7.7 [−5.8, +21.2], n.s.), program-executed
+0% → 15.4% (p=0.008). The 2B baseline is in `results/summary.md`. The CPU synthetic ablation and CPU
 GRPO smoke were skipped as superseded by the 9B GPU runs (§5, §6).
 
 ## 5. Synthetic data (Phase 3)
