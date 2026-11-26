@@ -24,8 +24,8 @@
 * **Synthetic-data ablation (9B, matched 1,600-example budget):** no significant effect on FinQA dev (74.9% → 73.6%,
   p=0.16) but +7.3 pts on the templated SEC set (82.2% → 89.4%, p<1e-6; program-executed 86.8% → 100%) — likely
   template alignment, not broad gains. 1,600 FinQA examples already reach 74.9% vs 76.0% with all 6,160.
-* **Cost:** main SFT = 82.6 min on 1x A100 40GB (≈$1.0); all GPU work (main run, ablation, 27B baseline, five failed or
-  aborted launches) **$3.81** of a $10 credit (hard cap $8). Inference (unoptimized HF batch-8): 0.48 s/question
+* **Cost:** main SFT = 82.6 min on 1x A100 40GB (≈$1.0); all GPU work (main SFT run, synthetic ablation, 27B baseline,
+  GRPO smoke test, and failed or aborted launches) **$4.69** of a $10 credit (hard cap $8). Inference (unoptimized HF batch-8): 0.48 s/question
   ≈ **$0.10 per 1,000 questions**.
 * **CPU proxy (0.8B, FinQA dev val100):** base **6.0% [2.0, 11.0]**; CPU SFT results in §4 when the queue finishes.
 * **Not answered:** frontier comparison (no API keys/budget) — commands and cost estimates in `NEXT_STEPS.md`.
@@ -196,8 +196,22 @@ document understanding — and is grouped by company for analysis.
   (several numbers on the Answer line), outputs > 4,000 chars, sign and scale errors, and injected instructions
   earn 0 — 14 adversarial tests in `tests/test_reward.py`.
 * GRPO script (`src/finqa/train/grpo.py`, TRL `GRPOTrainer`, DAPO loss, no KL, group-scaled rewards, masked
-  truncations) with a CPU smoke config and a prepared 9B GPU config (vLLM colocate rollouts). CPU smoke result:
-  see below when it completes.
+  truncations), validated end to end on CPU (0.8B, 1 step) and then **smoke-tested at 9B on 1x A100 40GB**
+  (`scripts/cloud/vast_job_c.sh`, `configs/grpo_gpu_smoke_9b.yaml`): init = the 1,600-example SFT adapter merged into the
+  bf16 base; prompts = FinQA train examples disjoint from that SFT data; 8 generations per prompt, 4 prompts (32
+  completions) per optimizer step, lr 1e-6, HF `generate` rollouts (no vLLM).
+  * **Memory:** micro-batch 8 completions → CUDA OOM immediately (needed +5.3 GB on top of ~34 GB); micro-batch 2 ran
+    **15 of 30 steps** and then OOM'd (+3.6 GB on top of ~36 GB), most likely on a batch containing one of the longest
+    (~3.7k-token) FinQA prompts. Cause: bf16 9B weights (~18 GB) plus full-vocabulary (248k) logits per sequence.
+  * **Throughput:** **40.4 s/step = 0.8 completions/s** (rollout + scoring + update). 1,000 steps would take ~11 h
+    (~$8 at $0.69/h) with HF generation.
+  * **Reward dynamics (15 steps, 60 prompts):** mean reward 0.86 of a maximum 1.2 (the SFT init already solves most
+    prompts), within-group std ≈0.5, completion length 25–38 tokens (none truncated), and on average **37% of prompts had
+    zero reward variance** across their 8 samples (no learning signal). 15 steps are far too few to move accuracy, and no
+    adapter was saved, so **no accuracy claim is made for RL**.
+  * **What scaling needs:** vLLM rollouts (5–10x throughput), a prompt-length cap (~2,048 tokens drops ~4% of train) or an
+    80 GB GPU / 4-bit base, prompt filtering by pass rate (drop prompts the SFT model always or never solves), and periodic
+    checkpoints. Per-step log: `results/cloud/train_log_grpo_smoke.jsonl`; job logs: `results/cloud/job_log_full_c.txt`.
 * Harness vs weights: the `prog` score is the tool-assisted (interpreter) score and is reported separately from
   `raw`; any frontier comparison must give frontier models the same interpreter. Harness gains are not claimed
   as weight-training gains.
@@ -235,7 +249,9 @@ the accuracy of the expensive tiers, or to win on data control/latency — not m
 
 **Training cost (estimate):** 9B QLoRA SFT, ~18M training tokens (6.2k examples × 1.45k tokens × 2 epochs) on 1x
 H100 at an assumed 2–4k tokens/s → 1.3–2.5 h + ~0.5 h eval → **~$4–$13** at $1.9–$4.3/h (RunPod/Vast/Lambda
-ranges in `docs/DECISIONS.md`). Actual spend in this session: **$0**.
+ranges in `docs/DECISIONS.md`). **Actual spend: $4.69** (Vast.ai credit $10.00 → $5.31), covering the main 9B SFT
+run (~$1.9 instance time), the ablation + 27B job (~$1.2), the GRPO smoke attempts (~$0.9) and five failed or aborted
+launches (~$0.7: China-located host, a stuck download, a stuck pip install, a missing `unzip`, and the first GRPO OOM).
 
 ## 8. Limitations
 * **No frontier baselines** (no API keys/budget): every frontier statement is a cost estimate, not an accuracy
