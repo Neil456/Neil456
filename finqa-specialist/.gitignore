@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+data/raw/
+data/processed/*.jsonl
+data/synth/*.jsonl
+checkpoints/
+outputs/
+cache/
+*.safetensors
+.pytest_cache/
+wandb/
+.env
+*.key
+logs/

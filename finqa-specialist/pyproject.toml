@@ -1,0 +1,12 @@
+[project]
+name = "finqa-specialist"
+version = "0.1.0"
+description = "Reproducible post-training research pipeline for financial numerical reasoning (FinQA)"
+requires-python = ">=3.11"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

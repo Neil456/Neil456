@@ -1,0 +1,115 @@
+{
+  "raw_commits": {
+    "FinQA": "0f16e2867befa6840783e58be38c9efb9229d742",
+    "TAT-QA": "870accc41953dcde885aabeb963d94aabdc0fbc3",
+    "ConvFinQA": "cf3eed2d5984960bf06bb8145bcea5e80b0222a6",
+    "financebench": "cc39aeb4afdf33909ee1412188bf89035950c2eb"
+  },
+  "raw_sha256": {
+    "FinQA/dataset/train.json": "49f237eb9779b569473b26b08048867d04635a7cc39ad6a7a5664c55bb428db6",
+    "FinQA/dataset/dev.json": "a847fb7e0d61a3125a1e2909852df6b89f1ee64d2c5ff1bf689e332214deee51",
+    "FinQA/dataset/test.json": "831dbfb2e785dbc227f895ce3f24046433467aec67b09db2bd6ac7692a8a30dc",
+    "TAT-QA/dataset_raw/tatqa_dataset_train.json": "2df6e722cdbaaa37efcbfb280f5c9a15be29a6ec18f618ef936fe63cc6d07c69",
+    "TAT-QA/dataset_raw/tatqa_dataset_dev.json": "8da095a819af6db3c14877c6df2d4d29960e41d1a63dd1fa853507bd2a616af5",
+    "TAT-QA/dataset_raw/tatqa_dataset_test_gold.json": "c4d08418359c1d76468dec420ee748a37f48c06b63cb8ec2766f19d5d314b597",
+    "ConvFinQA/data.zip": "d764271fae60d81b62e6d58dfc481807ebc8cfbcd633811241723c4a2101072a",
+    "financebench/data/financebench_open_source.jsonl": "a5a2aa673e573e55675fc3c0f9aa38c1cf59d2abc91edb077534f71f10a71877"
+  },
+  "processed": {
+    "convfinqa_dev.jsonl": {
+      "n": 1490,
+      "sha256": "c9c0be4fd54c2d1d3763f64c9e3522a6988c5edaede80e0445f537a73dc76ac6"
+    },
+    "convfinqa_train.jsonl": {
+      "n": 10884,
+      "sha256": "a814699361707fdf5724cb73fcdd3f6963c5a93886cc080f5cd65774674c750f"
+    },
+    "financebench_eval.jsonl": {
+      "n": 150,
+      "sha256": "d50631b895a0e9d72fb36ceaa899204268b4e371e68b839f880264c325962f2e"
+    },
+    "finqa_dev.jsonl": {
+      "n": 883,
+      "sha256": "901fce94a253900eb6e3440c27bdd8d667b448d89d2bb4ddc8bdb14628406b3a"
+    },
+    "finqa_test.jsonl": {
+      "n": 1147,
+      "sha256": "4afefb9939c3ce2bc798b2c00497eacf8a73e8d52dd424a2bc238c2b19f1e5c1"
+    },
+    "finqa_train.jsonl": {
+      "n": 6194,
+      "sha256": "f3acbe080cddb94c3e82def1412e21a0f2e98337ccdf7d078fc07f649da062bc"
+    },
+    "tatqa_dev.jsonl": {
+      "n": 1073,
+      "sha256": "40bcea1369e1a86366972ecc07374382b30165abd9af9d2e82559da253d22a6e"
+    },
+    "tatqa_test.jsonl": {
+      "n": 1054,
+      "sha256": "33057decb670e87d81d276af294bafbe7ea26b2cc5ae393a219d013d556caff4"
+    },
+    "tatqa_train.jsonl": {
+      "n": 8475,
+      "sha256": "6416a2f9843d4553801e81d1bcb4dfe0a765f08c50cdf8602d2ffb09ad984ec1"
+    }
+  },
+  "stats": {
+    "finqa/train": {
+      "n": 6251,
+      "program_exec_ok": 6249,
+      "program_matches_exe_ans": 6247,
+      "answer_text_consistent_with_exe_ans": 5244,
+      "answer_text_empty": 48
+    },
+    "finqa/dev": {
+      "n": 883,
+      "program_exec_ok": 883,
+      "program_matches_exe_ans": 883,
+      "answer_text_consistent_with_exe_ans": 731,
+      "answer_text_empty": 12
+    },
+    "finqa/test": {
+      "n": 1147,
+      "program_exec_ok": 1147,
+      "program_matches_exe_ans": 1147,
+      "answer_text_consistent_with_exe_ans": 945,
+      "answer_text_empty": 14
+    },
+    "tatqa/train": {
+      "n": 13215,
+      "skipped_non_numeric": 4736,
+      "kept": 8479
+    },
+    "tatqa/dev": {
+      "n": 1668,
+      "skipped_non_numeric": 595,
+      "kept": 1073
+    },
+    "tatqa/test": {
+      "n": 1663,
+      "skipped_non_numeric": 609,
+      "kept": 1054
+    },
+    "convfinqa/train": {
+      "n": 11104
+    },
+    "convfinqa/dev": {
+      "n": 1490
+    },
+    "dedup": {
+      "finqa:train_doc_shared_with_eval_flagged": 0,
+      "finqa:train_table_shared_with_eval_flagged": 30,
+      "finqa:train_exact_duplicate_dropped": 57,
+      "tatqa:train_doc_shared_with_eval_flagged": 0,
+      "tatqa:train_table_shared_with_eval_flagged": 3,
+      "tatqa:train_exact_duplicate_dropped": 4,
+      "convfinqa:train_doc_shared_with_eval_flagged": 0,
+      "convfinqa:train_table_shared_with_eval_flagged": 41,
+      "convfinqa:train_exact_duplicate_dropped": 220
+    },
+    "financebench/eval": {
+      "n": 150,
+      "numeric": 52
+    }
+  }
+}

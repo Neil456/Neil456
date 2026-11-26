@@ -1,0 +1,14 @@
+pyproject.toml
+src/finqa/__init__.py
+src/finqa/answers.py
+src/finqa/dsl.py
+src/finqa/data/__init__.py
+src/finqa/data/build.py
+src/finqa/eval/__init__.py
+src/finqa/sec/__init__.py
+src/finqa/synth/__init__.py
+src/finqa/train/__init__.py
+src/finqa_specialist.egg-info/PKG-INFO
+src/finqa_specialist.egg-info/SOURCES.txt
+src/finqa_specialist.egg-info/dependency_links.txt
+src/finqa_specialist.egg-info/top_level.txt

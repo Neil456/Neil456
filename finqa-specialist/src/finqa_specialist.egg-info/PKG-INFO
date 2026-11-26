@@ -1,0 +1,5 @@
+Metadata-Version: 2.4
+Name: finqa-specialist
+Version: 0.1.0
+Summary: Reproducible post-training research pipeline for financial numerical reasoning (FinQA)
+Requires-Python: >=3.11
