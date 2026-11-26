@@ -74,7 +74,10 @@ def search(min_ram_gb: int, max_dph: float, gpus: list[str]):
          "dph_total": {"lte": max_dph}, "order": [["dph_total", "asc"]], "type": "on-demand", "limit": 50}
     r = requests.get(f"{API}/bundles/", params={"q": json.dumps(q)}, timeout=60)
     r.raise_for_status()
-    offers = [o for o in r.json().get("offers", []) if not gpus or o.get("gpu_name") in gpus]
+    # exclude hosts where Hugging Face / GitHub access is commonly blocked or throttled
+    blocked = ("China", ", CN", "Hong Kong")
+    offers = [o for o in r.json().get("offers", []) if (not gpus or o.get("gpu_name") in gpus)
+              and not any(b in (o.get("geolocation") or "") for b in blocked)]
     return sorted(offers, key=lambda o: o["dph_total"])
 
 
@@ -119,10 +122,14 @@ def cmd_launch(a):
         sys.exit("ABORT: worst case exceeds --max-usd")
     bundle = build_bundle()
     print(f"bundle: {len(bundle)} base64 chars")
+    # Vast limits: total env <= 32KB, onstart <= 16KB -> split the bundle across both.
+    head, rest = bundle[:30000], bundle[30000:]
     onstart = ("mkdir -p /workspace/repo/finqa-specialist && cd /workspace/repo/finqa-specialist && "
-               "echo \"$CODE_B64\" | base64 -d | tar xJ && "
+               f"printf '%s%s' \"$CODE_B64\" '{rest}' | base64 -d | tar xJ && "
                "setsid nohup bash -c 'bash scripts/cloud/vast_job.sh 2>&1 | tee -a /workspace/job.log | tee /proc/1/fd/1' >/dev/null 2>&1 &")
-    env = {"CODE_B64": bundle, "MAX_HOURS": str(int(hours)), "EPOCHS": str(a.epochs),
+    if len(onstart) > 15800:
+        sys.exit(f"ABORT: onstart too long ({len(onstart)} chars); trim the bundle")
+    env = {"CODE_B64": head, "MAX_HOURS": str(int(hours)), "EPOCHS": str(a.epochs),
            "HOURLY_USD": f"{best['dph_total']:.4f}", "PYTHONUNBUFFERED": "1"}
     if not a.confirm:
         print("DRY RUN: add --confirm to create the instance.")
@@ -130,8 +137,9 @@ def cmd_launch(a):
     body = {"client_id": "me", "image": IMAGE, "env": env, "disk": a.disk, "label": "finqa-9b-sft",
             "onstart": onstart, "runtype": "ssh"}
     r = api("PUT", f"/asks/{best['id']}/", json=body)
-    print("create:", r.status_code, r.text[:300])
-    r.raise_for_status()
+    print("create:", r.status_code, r.text[:500])
+    if not r.ok:
+        sys.exit("create failed (no instance created)")
     iid = r.json().get("new_contract")
     save_state({"instance_id": iid, "offer_id": best["id"], "gpu": best["gpu_name"], "dph": best["dph_total"],
                 "created": time.time(), "max_usd": a.max_usd, "max_hours": hours, "destroyed": False})
