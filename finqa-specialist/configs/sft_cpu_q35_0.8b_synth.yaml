@@ -28,7 +28,7 @@ eval_steps: 10
 save_total_limit: 10
 eval_ids_file: results/subsets/finqa_dev_select60.txt
 eval_file: data/processed/finqa_dev.jsonl
-gradient_checkpointing: true
+gradient_checkpointing: true    # off -> OOM-killed on 15 GB (tested 2026-11-26)
 bf16: true
 threads: 4
 output_dir: checkpoints/sft_cpu_q35_0.8b_synth

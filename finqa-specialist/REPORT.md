@@ -71,8 +71,37 @@ Error profile of the base 0.8B model (val100): 12% no parseable answer (repetiti
 ## 6. RL / harness
 <!-- FILLED AFTER QUEUE -->
 
-## 7. Cost model
-<!-- FILLED -->
+## 7. Cost model (inference) — API list price vs self-hosted
+Workload per FinQA question (measured with the Qwen3.5 tokenizer on dev): **~1,400 prompt tokens** (system +
+document + DSL spec), **~30–55 output tokens** in direct mode; reasoning/CoT modes typically add 300–2,000
+output tokens (not measured here). Other tokenizers may count ~1.0–1.35x more prompt tokens.
+
+**API (list prices; Claude from Anthropic's model table cached 2026-11-03; OpenAI/Gemini from third-party
+snapshots of their pricing pages, unverified — confirm before use).** USD per 1,000 questions:
+
+| model (exact ID to confirm on the day) | $/M in | $/M out | direct (1.4k in + 50 out) | reasoning (1.4k in + 1.5k out) |
+|---|---|---|---|---|
+| Claude Opus 5.5 (`claude-opus-5-5`) | 4.00 | 20.00 | 6.6 | 35.6 |
+| Claude Sonnet 5.5 (`claude-sonnet-5-5`) | 2.00 | 10.00 | 3.3 | 17.8 |
+| Claude Haiku 5.5 (`claude-haiku-5-5`) | 0.10 | 0.50 | 0.17 | 0.89 |
+| GPT-5.5 (snapshot, unverified) | 5.00 | 30.00 | 8.5 | 52.0 |
+| Gemini 3.x Flash (intro price to 2026-12-31, unverified) | 0.75 | 3.75 | 1.2 | 6.7 |
+
+**Self-hosted (estimate = GPU $/h ÷ measured throughput at stated utilization).**
+* Measured here (CPU, single stream, batch 1): Qwen3.5-0.8B = 10.3 s/question on 4 vCPU → at an assumed
+  $0.20/h for a 4-vCPU instance, **$0.57 per 1,000 questions** — but at 6% accuracy this is not a usable system.
+* 9B on 1x H100 with vLLM (*not measured; assumption*): 5–20 questions/s aggregate at 50–80% utilization
+  (prefill-bound: ~1.4k tokens/question) and $2–4/h → **$0.03–$0.22 per 1,000 questions**. Must be measured on
+  the first GPU run (`scripts/eval_gpu_matrix.sh` records per-example latency; use `--hourly-usd`).
+
+**Implication:** a fine-tuned 9B model's cost advantage is large against mid/top frontier tiers (~15x for
+Sonnet-class direct answers up to >1,000x for Opus/GPT-class reasoning, under the self-hosting assumption above) but roughly **nil against the cheapest frontier tier**
+(Claude Haiku 5.5 ≈ $0.17–0.9 per 1k questions). The commercial case therefore requires the specialist to reach
+the accuracy of the expensive tiers, or to win on data control/latency — not merely to beat Haiku-tier price.
+
+**Training cost (estimate):** 9B QLoRA SFT, ~18M training tokens (6.2k examples × 1.45k tokens × 2 epochs) on 1x
+H100 at an assumed 2–4k tokens/s → 1.3–2.5 h + ~0.5 h eval → **~$4–$13** at $1.9–$4.3/h (RunPod/Vast/Lambda
+ranges in `docs/DECISIONS.md`). Actual spend in this session: **$0**.
 
 ## 8. Limitations
 <!-- FILLED -->

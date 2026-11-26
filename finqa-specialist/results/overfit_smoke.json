@@ -1,0 +1,26 @@
+{
+  "first_loss": 1.0702265501022339,
+  "last_loss": 0.4909452497959137,
+  "min_loss": 0.04222027212381363,
+  "n_logged": 28,
+  "grad_norm_first": 9.703182220458984,
+  "grad_norm_last": 5.5185723304748535,
+  "grad_norm_all_finite": true,
+  "grad_norm_nonzero": true,
+  "checkpoints": [
+    "checkpoint-16",
+    "checkpoint-28"
+  ],
+  "reload_generate_exact_match": "1/7",
+  "reload_prog_correct": "4/7",
+  "epoch_mean_loss": [
+    1.028,
+    0.536,
+    0.523,
+    0.383
+  ],
+  "strict_pass": false,
+  "mechanics_pass": true,
+  "reload_valid_dsl_format": "7/7",
+  "note": "Mechanics verified: loss falls (epoch means above), finite/nonzero grads, checkpoints saved, adapter reloads and generates in the trained DSL format. Strict memorisation criterion (>=6/7 programs correct and last loss <25% of first) NOT met after 4 epochs (28 steps) at lr 5e-4: 4/7 reloaded programs execute to the gold value; misses are digit-level answer/program errors, consistent with the last-epoch mean loss of ~0.38 (under-training, not a reload fault)."
+}

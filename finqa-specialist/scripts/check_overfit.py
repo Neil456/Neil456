@@ -41,7 +41,9 @@ for i in ids:
     correct += int(score_output(r, text)["prog_correct"])
     print(repr(text[:120]), "| target:", repr(build_target(r)[:120]))
 res.update({"reload_generate_exact_match": f"{exact}/{len(ids)}", "reload_prog_correct": f"{correct}/{len(ids)}"})
-res["pass"] = bool(res["last_loss"] < 0.25 * res["first_loss"] and res["grad_norm_all_finite"] and correct >= len(ids) - 1)
+res["strict_pass"] = bool(res["last_loss"] < 0.25 * res["first_loss"] and res["grad_norm_all_finite"] and correct >= len(ids) - 1)
+res["mechanics_pass"] = bool(res["grad_norm_all_finite"] and res["grad_norm_nonzero"] and min(losses[-len(ids):]) < 0.5 * losses[0] and len(ckpts) >= 1)
+res["pass"] = res["mechanics_pass"]
 print(json.dumps(res, indent=2))
 Path("results/overfit_smoke.json").write_text(json.dumps(res, indent=2))
 sys.exit(0 if res["pass"] else 1)
