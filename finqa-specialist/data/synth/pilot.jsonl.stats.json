@@ -1,0 +1,31 @@
+{
+  "items": 1600,
+  "rejects": {
+    "template_not_applicable": 80,
+    "implausible_growth": 2,
+    "exec_failed:division by zero": 2,
+    "trivial_answer_is_cell": 2
+  },
+  "kinds": {
+    "average": 152,
+    "ratio": 141,
+    "margin": 145,
+    "multi_step_negative": 117,
+    "unit_conversion": 73,
+    "weighted_average": 132,
+    "cagr": 111,
+    "table_highest": 38,
+    "growth": 118,
+    "share_of_total": 131,
+    "margin_change": 137,
+    "table_average": 44,
+    "comparison": 131,
+    "table_lowest": 25,
+    "per_share": 74,
+    "table_total": 31
+  },
+  "splits": {
+    "train": 1412,
+    "synth_dev": 188
+  }
+}

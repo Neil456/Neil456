@@ -1,0 +1,26 @@
+# GRPO smoke test on GPU (measure rollout VRAM/throughput + reward dynamics before scaling).
+# Init: the 1,600-example SFT adapter (configs/sft_gpu_q35_9b_abl_finqa1600.yaml) merged into the bf16 base.
+# Prompts: FinQA train examples AFTER the first 1,600 of the seed-0 order (disjoint from the SFT init data).
+model: Qwen/Qwen3.5-9B
+revision: c202236235762e1c871ad0ccb60c8ee5ba337b9a
+init_adapter: /workspace/checkpoints/abl_finqa1600/final
+train_files: [data/processed/finqa_train.jsonl]
+skip_first: 1600
+max_train_examples: 120        # 30 steps x 4 prompts
+num_generations: 8
+per_device_batch_size: 2       # completions per micro-step (8 OOM'd on A100 40GB: ~1.5k-token seqs x 248k vocab logits)
+grad_accum: 16                 # 32 completions = 4 prompts x 8 generations per optimizer step
+max_completion_length: 96      # SFT outputs average ~31 tokens
+temperature: 1.0
+learning_rate: 1.0e-6
+beta: 0.0
+loss_type: dapo
+max_steps: 30
+lora_r: 32
+lora_alpha: 64
+bf16: true
+gradient_checkpointing: true
+use_vllm: false
+save_steps: 1000
+log_completions: false
+output_dir: /workspace/checkpoints/grpo_smoke_9b

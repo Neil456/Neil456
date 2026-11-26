@@ -1,0 +1,9 @@
+{
+  "q35-9b_grpoinit_sft1600_direct_val300": {
+    "n": 300,
+    "missing_ids": 0,
+    "remote_local_score_mismatches": 0,
+    "raw": 0.7266666666666667,
+    "prog": 0.7333333333333333
+  }
+}

@@ -1,0 +1,33 @@
+# Synthetic-data ablation at matched budget (1,600 examples, 1 epoch, final checkpoint, no selection).
+# Primary GPU recipe (prepared, NOT run here: no GPU / no authorized spend).
+# QLoRA: 4-bit NF4 base (bitsandbytes), BF16 compute, LoRA r=32 alpha=64 on all linear layers.
+model: Qwen/Qwen3.5-9B
+revision: c202236235762e1c871ad0ccb60c8ee5ba337b9a
+max_length: 4096              # measured max prompt+target = ~3.8k tokens with Qwen3.5 tokenizer -> no drops
+seed: 0
+load_in_4bit: true
+lora_r: 32
+lora_alpha: 64
+lora_dropout: 0.05
+target_modules: all-linear
+learning_rate: 1.0e-4
+per_device_batch_size: 4
+grad_accum: 4                 # effective batch size 16
+epochs: 2
+warmup_ratio: 0.03
+scheduler: cosine
+logging_steps: 5
+save_steps: 100
+eval_steps: 100
+save_total_limit: 8
+gradient_checkpointing: true
+bf16: true
+optim: paged_adamw_8bit
+output_dir: /workspace/checkpoints/abl_finqa1200_synth400
+train_files: [data/processed/finqa_train.jsonl, data/synth/pilot.jsonl]
+mix: {finqa: 1200, synth: 400}
+epochs: 1
+per_device_batch_size: 1
+grad_accum: 16
+save_steps: 1000
+logging_steps: 5

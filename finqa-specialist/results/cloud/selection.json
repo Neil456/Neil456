@@ -1,0 +1,11 @@
+{
+  "eval_loss_by_step": {
+    "100": 0.05714869499206543,
+    "200": 0.04914671927690506,
+    "300": 0.04360683262348175,
+    "385": 0.043254073709249496
+  },
+  "selected_step": 385,
+  "selected_eval_loss": 0.043254073709249496,
+  "criterion": "min eval_loss on finqa_dev_select60 (disjoint from val100/val300)"
+}

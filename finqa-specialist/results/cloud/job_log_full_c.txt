@@ -1,0 +1,164 @@
+Thu Nov 26 20:43:46 UTC 2026
+Get:1 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  InRelease [1578 B]
+Hit:2 http://archive.ubuntu.com/ubuntu jammy InRelease
+Get:3 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+Get:4 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+Get:5 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  Packages [3299 kB]
+Get:6 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1632 kB]
+Get:8 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [4564 kB]
+Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [8446 kB]
+Get:10 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [4899 kB]
+Get:11 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1331 kB]
+Get:12 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [8139 kB]
+Fetched 32.7 MB in 3s (12.8 MB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+curl is already the newest version (7.81.0-1ubuntu1.30).
+less is already the newest version (590-1ubuntu0.22.04.3).
+openssh-server is already the newest version (1:8.9p1-3ubuntu0.18).
+software-properties-common is already the newest version (0.99.22.9).
+sudo is already the newest version (1.9.9-1ubuntu2.7).
+tmux is already the newest version (3.2a-4ubuntu0.3).
+wget is already the newest version (1.21.2-2ubuntu1.5).
+The following packages will be upgraded:
+  locales
+1 upgraded, 0 newly installed, 0 to remove and 117 not upgraded.
+Need to get 4245 kB of archives.
+After this operation, 0 B of additional disk space will be used.
+Get:1 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 locales all 2.35-0ubuntu3.18 [4245 kB]
+debconf: delaying package configuration, since apt-utils is not installed
+Fetched 4245 kB in 1s (4435 kB/s)
+(Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading d
+Preparing to unpack .../locales_2.35-0ubuntu3.18_all.deb ...
+Unpacking locales (2.35-0ubuntu3.18) over (2.35-0ubuntu3.15) ...
+Setting up locales (2.35-0ubuntu3.18) ...
+Generating locales (this might take a while)...
+Generation complete.
+Reading package lists...
+Building dependency tree...
+Reading state information...
+git is already the newest version (1:2.34.1-1ubuntu1.18).
+rsync is already the newest version (3.2.7-0ubuntu0.22.04.7).
+0 upgraded, 0 newly installed, 0 to remove and 117 not upgraded.
+rm: cannot remove '/etc/forward_port2': No such file or directory
+Server listening on 0.0.0.0 port 22.
+Server listening on :: port 22.
+Thu Nov 26 20:43:59 UTC 2026
+Warning: Permanently added 'ssh1.vast.ai' (ED25519) to the list of known hosts.
+[finqa-job 20:44:00] GPU: NVIDIA A100-SXM4-40GB, 40960 MiB; code 6b6f67f
+[finqa-job 20:44:01] pip install
+Successfully installed accelerate-1.16.0 annotated-doc-0.0.7 annotated-types-0.8.0 anyio-4.16.0 bitsandbytes-0.50.2 click-8.5.1 datasets-5.2.0 dill-0.4.1 einops-0.8.2 fla-core-0.6.0 flash-linear-attention-0.6.0 h11-0.16.0 hf-xet-1.8.0 httpcore-1.0.9 httpcore2-2.16.2 httpx-0.29.0 httpx2-2.16.2 huggin
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[download] done
+}
+[finqa-job 20:45:11] data built
+[finqa-job 20:45:11] SFT init start
+[sft] data: {"loaded": 6194, "usable_verified_no_leak": 6160, "selected": 1600, "dropped_too_long": 0, "kept": 1600, "tokens_total": 2281264, "completion_tokens_total": 51764}
+[sft] masking check: 53 supervised tokens of 1793
+[sft] done in 20.9 min
+[finqa-job 21:07:24] eval SFT init (val300)
+}
+[finqa-job 21:07:25] GRPO start
+
+  3%|▎         | 1/30 [01:08<33:19, 68.96s/it]
+                                              
+{'loss': '0.1212', 'grad_norm': '0.6162', 'learning_rate': '1e-06', 'num_tokens': '4.921e+04', 'completions/mean_length': '33.78', 'completions/min_length': '25', 'completions/max_length': '75', 'completions/clipped_ratio': '0', 'completions/mean_terminated_length': '33.78', 'completions/min_terminated
+
+  3%|▎         | 1/30 [01:08<33:19, 68.96s/it]
+  7%|▋         | 2/30 [01:56<26:17, 56.34s/it]
+                                              
+{'loss': '0.02122', 'grad_norm': '0.6031', 'learning_rate': '9.667e-07', 'num_tokens': '9.754e+04', 'completions/mean_length': '29.59', 'completions/min_length': '20', 'completions/max_length': '60', 'completions/clipped_ratio': '0', 'completions/mean_te
+
+  7%|▋         | 2/30 [01:56<26:17, 56.34s/it]
+ 10%|█         | 3/30 [02:41<23:03, 51.23s/it]
+                                              
+{'loss': '0.05855', 'grad_norm': '0.4104', 'learning_rate': '9.333e-07', 'num_tokens': '1.378e+05', 'completions/mean_length': '38.16', 'completions/min_length': '26', 'completions/max_length': '72', 'completions/clipped_ratio': '0', 'completions/mean_te
+
+ 10%|█         | 3/30 [02:41<23:03, 51.23s/it]
+ 13%|█▎        | 4/30 [03:20<20:05, 46.35s/it]
+                                              
+{'loss': '0.09342', 'grad_norm': '0.6391', 'learning_rate': '9e-07', 'num_tokens': '1.875e+05', 'completions/mean_length': '28.44', 'completions/min_length': '18', 'completions/max_length': '78', 'completions/clipped_ratio': '0', 'completions/mean_term
+
+ 13%|█▎        | 4/30 [03:20<20:05, 46.35s/it]
+ 17%|█▋        | 5/30 [03:53<17:19, 41.59s/it]
+                                              
+{'loss': '0.01306', 'grad_norm': '0.6459', 'learning_rate': '8.667e-07', 'num_tokens': '2.274e+05', 'completions/mean_length': '36.81', 'completions/min_length': '24', 'completions/max_length': '50', 'completions/clipped_ratio': '0', 'completions/mea
+
+ 17%|█▋        | 5/30 [03:53<17:19, 41.59s/it]
+ 20%|██        | 6/30 [04:28<15:40, 39.17s/it]
+                                              
+{'loss': '0.04613', 'grad_norm': '0.6654', 'learning_rate': '8.333e-07', 'num_tokens': '2.745e+05', 'completions/mean_length': '32.25', 'completions/min_length': '20', 'completions/max_length': '70', 'completions/clipped_ratio': '0', 'completions/mea
+
+ 20%|██        | 6/30 [04:28<15:40, 39.17s/it]
+ 23%|██▎       | 7/30 [05:07<15:04, 39.31s/it]
+                                              
+{'loss': '-0.003042', 'grad_norm': '0.5148', 'learning_rate': '8e-07', 'num_tokens': '3.14e+05', 'completions/mean_length': '36.31', 'completions/min_length': '30', 'completions/max_length': '46', 'completions/clipped_ratio': '0', 'completions/mean
+
+ 23%|██▎       | 7/30 [05:07<15:04, 39.31s/it]
+ 27%|██▋       | 8/30 [05:41<13:44, 37.49s/it]
+                                              
+{'loss': '0.04709', 'grad_norm': '0.4612', 'learning_rate': '7.667e-07', 'num_tokens': '3.606e+05', 'completions/mean_length': '30.09', 'completions/min_length': '24', 'completions/max_length': '43', 'completions/clipped_ratio': '0', 'completions
+
+ 27%|██▋       | 8/30 [05:41<13:44, 37.49s/it]
+ 30%|███       | 9/30 [06:14<12:40, 36.22s/it]
+                                              
+{'loss': '0.09431', 'grad_norm': '0.4581', 'learning_rate': '7.333e-07', 'num_tokens': '4.075e+05', 'completions/mean_length': '27.88', 'completions/min_length': '22', 'completions/max_length': '44', 'completions/clipped_ratio': '0', 'completions
+
+ 30%|███       | 9/30 [06:14<12:40, 36.22s/it]
+ 33%|███▎      | 10/30 [06:57<12:46, 38.34s/it]
+                                               
+{'loss': '0.01815', 'grad_norm': '0.3921', 'learning_rate': '7e-07', 'num_tokens': '4.533e+05', 'completions/mean_length': '28.19', 'completions/min_length': '24', 'completions/max_length': '62', 'completions/clipped_ratio': '0', 'completions
+
+ 33%|███▎      | 10/30 [06:57<12:46, 38.34s/it]
+ 37%|███▋      | 11/30 [07:27<11:18, 35.73s/it]
+                                               
+{'loss': '0.03844', 'grad_norm': '0.4394', 'learning_rate': '6.667e-07', 'num_tokens': '4.932e+05', 'completions/mean_length': '28.28', 'completions/min_length': '22', 'completions/max_length': '42', 'completions/clipped_ratio': '0', 'comp
+
+ 37%|███▋      | 11/30 [07:27<11:18, 35.73s/it]
+ 40%|████      | 12/30 [08:45<14:32, 48.48s/it]
+                                               
+{'loss': '0.06931', 'grad_norm': '0.4472', 'learning_rate': '6.333e-07', 'num_tokens': '5.397e+05', 'completions/mean_length': '30.59', 'completions/min_length': '21', 'completions/max_length': '69', 'completions/clipped_ratio': '0', 'comp
+
+ 40%|████      | 12/30 [08:45<14:32, 48.48s/it]
+ 43%|████▎     | 13/30 [09:26<13:06, 46.24s/it]
+                                               
+{'loss': '0.03725', 'grad_norm': '0.5047', 'learning_rate': '6e-07', 'num_tokens': '5.853e+05', 'completions/mean_length': '34.75', 'completions/min_length': '21', 'completions/max_length': '77', 'completions/clipped_ratio': '0', 'comple
+
+ 43%|████▎     | 13/30 [09:26<13:06, 46.24s/it]
+ 47%|████▋     | 14/30 [09:59<11:16, 42.27s/it]
+                                               
+{'loss': '0', 'grad_norm': '0', 'learning_rate': '5.667e-07', 'num_tokens': '6.299e+05', 'completions/mean_length': '31.44', 'completions/min_length': '26', 'completions/max_length': '42', 'completions/clipped_ratio': '0', 'completions
+
+ 47%|████▋     | 14/30 [09:59<11:16, 42.27s/it]
+ 50%|█████     | 15/30 [10:34<10:03, 40.24s/it]
+                                               
+{'loss': '0.05631', 'grad_norm': '0.5533', 'learning_rate': '5.333e-07', 'num_tokens': '6.78e+05', 'completions/mean_length': '25.28', 'completions/min_length': '17', 'completions/max_length': '44', 'completions/clipped_ratio': '0', 'c
+
+ 50%|█████     | 15/30 [10:34<10:03, 40.24s/it]Traceback (most recent call last):
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 3.61 GiB. GPU 0 has a total capacity of 39.52 GiB of which 3.38 GiB is free. Including non-PyTorch memory, this process has 36.12 GiB memory in use. Of the allocated memory 30.68 GiB is allocated by PyTorch, and 4.14 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CO
+[finqa-job 21:19:21] GRPO produced no adapter
+[finqa-job 21:19:22] PAYLOAD_BEGIN 12972 bytes
+[finqa-job 21:19:22] PAYLOAD_END
+[finqa-job 21:19:22] FINQA_JOB_DONE

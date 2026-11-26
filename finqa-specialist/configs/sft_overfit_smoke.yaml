@@ -1,0 +1,24 @@
+# Tiny overfit smoke test: verifies loss decreases, gradients flow, checkpoint save + reload.
+model: Qwen/Qwen3.5-0.8B
+revision: 2fc06364715b967f1860aea9cf38778875588b17
+train_files: [data/processed/finqa_train.jsonl]
+max_train_examples: 8
+max_length: 1800        # keep the smoke test short: drops longer examples
+seed: 0
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.0
+target_modules: all-linear
+learning_rate: 5.0e-4
+per_device_batch_size: 1
+grad_accum: 1
+epochs: 4
+warmup_ratio: 0.0
+scheduler: constant
+logging_steps: 1
+save_steps: 16
+save_total_limit: 2
+gradient_checkpointing: true
+bf16: true
+threads: 4
+output_dir: checkpoints/overfit_smoke

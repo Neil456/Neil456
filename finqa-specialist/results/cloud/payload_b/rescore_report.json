@@ -1,0 +1,44 @@
+{
+  "q35-9b_abl_finqa1200_synth400_direct_finqa_dev": {
+    "n": 883,
+    "missing_ids": 0,
+    "remote_local_score_mismatches": 0,
+    "raw": 0.7361268403171007,
+    "prog": 0.7463193657984145
+  },
+  "q35-9b_abl_finqa1200_synth400_direct_sec_fresh": {
+    "n": 303,
+    "missing_ids": 0,
+    "remote_local_score_mismatches": 0,
+    "raw": 0.8943894389438944,
+    "prog": 1.0
+  },
+  "q35-9b_abl_finqa1600_direct_finqa_dev": {
+    "n": 883,
+    "missing_ids": 0,
+    "remote_local_score_mismatches": 0,
+    "raw": 0.7485843714609286,
+    "prog": 0.7553793884484711
+  },
+  "q35-9b_abl_finqa1600_direct_sec_fresh": {
+    "n": 303,
+    "missing_ids": 0,
+    "remote_local_score_mismatches": 0,
+    "raw": 0.8217821782178217,
+    "prog": 0.8679867986798679
+  },
+  "q38-27b-4bit_base_direct_finqa_dev": {
+    "n": 883,
+    "missing_ids": 0,
+    "remote_local_score_mismatches": 0,
+    "raw": 0.7497168742921857,
+    "prog": 0.44960362400906
+  },
+  "q38-27b-4bit_base_direct_sec_fresh": {
+    "n": 303,
+    "missing_ids": 0,
+    "remote_local_score_mismatches": 0,
+    "raw": 0.8778877887788779,
+    "prog": 0.6501650165016502
+  }
+}

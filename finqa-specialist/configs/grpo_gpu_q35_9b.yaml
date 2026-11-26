@@ -1,0 +1,23 @@
+# Prepared GPU GRPO run (NOT executed here). Start from the selected SFT checkpoint.
+model: Qwen/Qwen3.5-9B
+revision: c202236235762e1c871ad0ccb60c8ee5ba337b9a
+init_adapter: /workspace/checkpoints/sft_gpu_q35_9b/best
+train_files: [data/processed/finqa_train.jsonl]
+max_train_examples: null
+num_generations: 8
+per_device_batch_size: 8
+grad_accum: 4
+max_completion_length: 256
+temperature: 1.0
+learning_rate: 1.0e-6
+beta: 0.0
+loss_type: dapo
+max_steps: 400
+lora_r: 32
+lora_alpha: 64
+bf16: true
+gradient_checkpointing: true
+use_vllm: true
+vllm_mode: colocate
+save_steps: 50
+output_dir: /workspace/checkpoints/grpo_gpu_q35_9b

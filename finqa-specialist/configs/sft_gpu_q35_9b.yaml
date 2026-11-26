@@ -1,0 +1,29 @@
+# Primary GPU recipe (prepared, NOT run here: no GPU / no authorized spend).
+# QLoRA: 4-bit NF4 base (bitsandbytes), BF16 compute, LoRA r=32 alpha=64 on all linear layers.
+model: Qwen/Qwen3.5-9B
+revision: c202236235762e1c871ad0ccb60c8ee5ba337b9a
+train_files: [data/processed/finqa_train.jsonl]
+max_train_examples: null      # full official FinQA train split (6194 after dedup; ~6170 verified)
+max_length: 4096              # measured max prompt+target = ~3.8k tokens with Qwen3.5 tokenizer -> no drops
+seed: 0
+load_in_4bit: true
+lora_r: 32
+lora_alpha: 64
+lora_dropout: 0.05
+target_modules: all-linear
+learning_rate: 1.0e-4
+per_device_batch_size: 4
+grad_accum: 4                 # effective batch size 16
+epochs: 2
+warmup_ratio: 0.03
+scheduler: cosine
+logging_steps: 5
+save_steps: 100
+eval_steps: 100
+save_total_limit: 8
+eval_ids_file: results/subsets/finqa_dev_select60.txt
+eval_file: data/processed/finqa_dev.jsonl
+gradient_checkpointing: true
+bf16: true
+optim: paged_adamw_8bit
+output_dir: /workspace/checkpoints/sft_gpu_q35_9b   # persistent network volume
