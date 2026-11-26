@@ -1,13 +1,13 @@
 {
-  "instance_id": 62730679,
+  "instance_id": 62731388,
   "offer_id": 61361707,
   "machine_id": 36394,
   "gpu": "A100 SXM4",
   "dph": 0.6988888888888889,
-  "created": 1795715530.3775551,
-  "max_usd": 5.4,
+  "created": 1795715904.6278129,
+  "max_usd": 5.3,
   "max_hours": 4.0,
-  "destroyed": true,
+  "destroyed": false,
   "bad_machine_ids": [
     154697
   ],
@@ -27,9 +27,15 @@
       "created": 1795705928.562658,
       "destroyed_at": 1795715139.4027927,
       "destroy_reason": "job done, payload retrieved (manual fetch)"
+    },
+    {
+      "instance_id": 62730679,
+      "gpu": "A100 SXM4",
+      "dph": 0.6988888888888889,
+      "created": 1795715530.3775551,
+      "destroyed_at": 1795715878.022715,
+      "destroy_reason": "FATAL data build (unzip missing in phase-B script)"
     }
   ],
-  "prior_spend_est_usd": 2.57,
-  "destroy_reason": "FATAL data build (unzip missing in phase-B script)",
-  "destroyed_at": 1795715878.022715
+  "prior_spend_est_usd": 2.62
 }
