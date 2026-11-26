@@ -35,7 +35,7 @@
 ## 1. Setup and provenance
 See `docs/DECISIONS.md` for model revisions, licenses, environment, and price sources.
 * Models: `Qwen/Qwen3.5-0.8B@2fc0636` (CPU proxy), `Qwen/Qwen3.5-2B@15852e8` (CPU baseline),
-  `Qwen/Qwen3.5-9B@c202236` (GPU fine-tuning target), `Qwen/Qwen3.8-27B@3756181` (strong open baseline, 4-bit eval).
+  `Qwen/Qwen3.5-9B@c202236` (GPU fine-tuning target; the 2B was downloaded but its CPU eval was stopped), `Qwen/Qwen3.8-27B@3756181` (strong open baseline, 4-bit eval).
   All Apache-2.0. `transformers 5.24.1`, `trl 1.19.0`, `peft 0.22.0`, `torch 2.9.1` (CPU).
 * Data (official splits preserved; hashes in `results/data_manifest.json`):
 
@@ -148,7 +148,7 @@ model learns the output format and number selection quickly; its own arithmetic 
 Latency here (mean 23 s, median 7 s per question) is inflated: a GRPO API check ran concurrently on the same 4 vCPUs.
 On the fresh SEC set (n=303) the same 0.8B pair goes from **4.3% to 58.4%** raw (+54.1 [+48.2, +60.1]) and from 0% to
 83.8% program-executed. On FinanceBench numeric (n=52): raw 9.6% → 17.3% (+7.7 [−5.8, +21.2], n.s.), program-executed
-0% → 15.4% (p=0.008). The 2B baseline is in `results/summary.md`. The CPU synthetic ablation and CPU
+0% → 15.4% (p=0.008). A planned 2B CPU baseline was stopped part-way at the user's request (redundant with the GPU results); no 2B numbers are reported. The CPU synthetic ablation and CPU
 GRPO smoke were skipped as superseded by the 9B GPU runs (§5, §6).
 
 ## 5. Synthetic data (Phase 3)
