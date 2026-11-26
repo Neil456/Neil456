@@ -14,7 +14,9 @@ log() { echo "[finqa-job $(date -u +%H:%M:%S)] $*"; }
 mkdir -p /workspace && cd /workspace
 command -v git >/dev/null || (apt-get update -qq && apt-get install -y -qq git unzip >/dev/null)
 command -v unzip >/dev/null || (apt-get update -qq && apt-get install -y -qq unzip >/dev/null)
-[ -d repo ] || git clone -q --depth 1 -b "$BRANCH" "$REPO_URL" repo || { log "FATAL clone failed"; kill -TERM 1; }
+# Code arrives as a bundle extracted by the onstart command into /workspace/repo/finqa-specialist;
+# fall back to cloning the branch if it is not there.
+[ -f repo/finqa-specialist/pyproject.toml ] || git clone -q --depth 1 -b "$BRANCH" "$REPO_URL" repo || { log "FATAL no code"; kill -TERM 1; }
 cd repo/finqa-specialist
 log "GPU: $(nvidia-smi --query-gpu=name,memory.total --format=csv,noheader)"
 pip install -q "transformers==5.24.1" "trl==1.19.0" "peft==0.22.0" "accelerate>=1.12" "datasets>=4.7" \
@@ -28,7 +30,7 @@ python -m finqa.sec.xbrl_eval --out data/processed/sec_fresh_eval.jsonl > /dev/n
 M=Qwen/Qwen3.5-9B; R=c202236235762e1c871ad0ccb60c8ee5ba337b9a
 CK=/workspace/checkpoints/sft_gpu_q35_9b
 log "SFT start (epochs=$EPOCHS)"
-python -m finqa.train.sft --config configs/sft_gpu_q35_9b.yaml --override output_dir=$CK epochs=$EPOCHS 2>&1 \
+python -m finqa.train.sft --config configs/sft_gpu_q35_9b.yaml --override output_dir=$CK epochs=$EPOCHS per_device_batch_size=1 grad_accum=16 save_steps=100 eval_steps=100 logging_steps=5 max_train_hours=$(( MAX_HOURS - 2 )) 2>&1 \
   | grep --line-buffered -E "\[sft\]|'loss'|eval_loss|Error|Traceback" | tail -n 400
 python scripts/select_checkpoint.py $CK && log "selected $(readlink $CK/best)"
 EV="python -m finqa.eval.runner --adapter hf --model $M --revision $R --batch-size 8 --max-new-tokens 160 --hourly-usd ${HOURLY_USD:-0}"
@@ -45,10 +47,21 @@ python -m finqa.eval.runner --adapter hf --model $M --revision $R --batch-size 8
   --data data/processed/finqa_dev.jsonl --ids-file results/subsets/finqa_dev_val100.txt --out results/preds/q35-9b_base_cot_val100.jsonl 2>&1 | tail -1
 python scripts/make_tables.py > /dev/null 2>&1
 cp $CK/selection.json $CK/run_manifest.json $CK/train_log.jsonl results/ 2>/dev/null
-mkdir -p /workspace/payload && cp results/preds/q35-9b_* results/selection.json results/run_manifest.json results/train_log.jsonl results/summary.md /workspace/payload/ 2>/dev/null
+mkdir -p /workspace/payload
+# compact predictions (raw outputs + timing/tokens); scoring is redone locally with the same evaluator
+python - <<'PY'
+import json, glob, os
+for f in glob.glob("results/preds/q35-9b_*.jsonl"):
+    keep = ("id", "config_hash", "model", "revision", "lora", "variant", "output", "input_tokens", "output_tokens",
+            "latency_s", "finish_reason", "est_cost_usd", "correct", "prog_correct")
+    with open(f) as fi, open("/workspace/payload/" + os.path.basename(f), "w") as fo:
+        for line in fi:
+            r = json.loads(line); fo.write(json.dumps({k: r.get(k) for k in keep}) + "\n")
+PY
+cp results/preds/q35-9b_*.summary.json results/preds/q35-9b_*.manifest.json results/selection.json results/run_manifest.json results/train_log.jsonl results/summary.md /workspace/payload/ 2>/dev/null
 tar czf /workspace/payload.tgz -C /workspace payload
 log "PAYLOAD_BEGIN $(stat -c %s /workspace/payload.tgz) bytes"
-base64 -w 76 /workspace/payload.tgz | sed 's/^/@P@ /'
+base64 -w 76 /workspace/payload.tgz | nl -ba -nrz -w6 -s ' ' | sed 's/^/@P@ /'
 log "PAYLOAD_END"
 log "FINQA_JOB_DONE"
 sleep 1800   # give the launcher time to fetch logs, then stop

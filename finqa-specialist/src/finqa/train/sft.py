@@ -173,8 +173,22 @@ def main():
                 with open(log_path, "a") as f:
                     f.write(json.dumps({"step": state.global_step, "time": time.time(), **logs}) + "\n")
 
+    class WallClockLimit(TrainerCallback):
+        """Stop (with evaluation + checkpoint) once max_train_hours of training wall time has elapsed."""
+        def __init__(self, hours):
+            self.limit, self.t0 = hours * 3600 if hours else None, time.time()
+
+        def on_step_end(self, args_, state, control, **kw):
+            if self.limit and time.time() - self.t0 > self.limit:
+                print(f"[sft] wall-clock limit reached at step {state.global_step}; stopping", flush=True)
+                control.should_training_stop = True
+                control.should_save = True
+                control.should_evaluate = eval_ds is not None
+            return control
+
     trainer = SFTTrainer(model=model, args=sargs, train_dataset=ds, eval_dataset=eval_ds,
-                         processing_class=tok, peft_config=lcfg, callbacks=[JsonlLogger()])
+                         processing_class=tok, peft_config=lcfg,
+                         callbacks=[JsonlLogger(), WallClockLimit(cfg.get("max_train_hours"))])
     trainer.model.print_trainable_parameters()
 
     # sanity: label masking -- only completion tokens contribute (checked on the trainer's prepared dataset)
