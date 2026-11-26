@@ -65,11 +65,46 @@ Error profile of the base 0.8B model (val100): 12% no parseable answer (repetiti
 ## 4. SFT (CPU proxy)
 <!-- FILLED AFTER QUEUE -->
 
-## 5. Synthetic data
-<!-- FILLED AFTER QUEUE -->
+## 5. Synthetic data (Phase 3)
+* Generator: `src/finqa/synth/generator.py` builds fictional multi-year statements with accounting identities
+  (gross profit = revenue − COGS, operating income, interest, tax, net income incl. losses; capex as negative
+  outflows; segments; share counts), renders them FinQA-style (text + table, FinQA cell conventions), samples a
+  **program first** from 12 templates (growth, margin, change in margin, average, table aggregates, ratio, share of
+  total, revenue-weighted average, CAGR, per-share with thousands→millions unit conversion, multi-step growth
+  comparison → yes/no, free-cash-flow share with negative values), executes it with the restricted interpreter,
+  and only then realises a question from several phrasings.
+* Automatic checks: program executes; every literal appears in the document; unique row names; no near-zero
+  denominators; multi-step answers must not equal a table cell; bounded magnitudes; no duplicate questions per
+  document. Document-level split (train / synth_dev by hash).
+* Pilot: **1,600 items / 400 documents** (1,412 train, 188 synth-dev); difficulty easy 629 / medium 708 /
+  hard 263; 86 candidates rejected (80 template-not-applicable, 2 implausible growth, 2 zero division,
+  2 trivial). Audit sheet with 25 samples for **human review**: `docs/SYNTH_AUDIT.md`. Known weaknesses visible in
+  the audit: 2-year `table_max/min` questions are near-trivial; growth of negative outflows (capex) is
+  arithmetically right but semantically ambiguous. Automated checks do not guarantee semantic correctness.
+* Ablation (CPU, 0.8B, matched budget of 640 examples: 480 FinQA + 160 synthetic vs 640 FinQA): see §4 when
+  the CPU queue completes.
 
-## 6. RL / harness
-<!-- FILLED AFTER QUEUE -->
+### Fresh SEC-XBRL evaluation set
+`src/finqa/sec/xbrl_eval.py` pulls the latest two 10-K filings per company from `data.sec.gov` company facts
+(40 large US companies; latest filings dated 2026-01 to 2026-11), keeps a value only if the prior-year comparative
+in the latest 10-K equals the current-year value in the previous 10-K (restated values dropped), and computes
+each templated answer twice (DSL on the rendered table vs float arithmetic on raw XBRL values); disagreeing items
+are dropped. **303 items** (growth, margins, change in margin, R&D intensity, FCF, cash conversion, leverage,
+yes/no growth comparison). It is *templated* — it tests arithmetic grounding on fresh numbers, not open-ended
+document understanding — and is grouped by company for analysis.
+
+## 6. RL / harness (Phase 4, stretch)
+* Verifiable reward (`src/finqa/train/rewards.py`): correctness 1.0 when both the executed program and the
+  stated answer match gold, 0.5 when exactly one does, else 0; +0.2 × grounding (share of program literals found
+  in the document) **only when correctness > 0**, so formatting or copying alone never pays. Hedged answers
+  (several numbers on the Answer line), outputs > 4,000 chars, sign and scale errors, and injected instructions
+  earn 0 — 14 adversarial tests in `tests/test_reward.py`.
+* GRPO script (`src/finqa/train/grpo.py`, TRL `GRPOTrainer`, DAPO loss, no KL, group-scaled rewards, masked
+  truncations) with a CPU smoke config and a prepared 9B GPU config (vLLM colocate rollouts). CPU smoke result:
+  see below when it completes.
+* Harness vs weights: the `prog` score is the tool-assisted (interpreter) score and is reported separately from
+  `raw`; any frontier comparison must give frontier models the same interpreter. Harness gains are not claimed
+  as weight-training gains.
 
 ## 7. Cost model (inference) — API list price vs self-hosted
 Workload per FinQA question (measured with the Qwen3.5 tokenizer on dev): **~1,400 prompt tokens** (system +
@@ -104,4 +139,14 @@ H100 at an assumed 2–4k tokens/s → 1.3–2.5 h + ~0.5 h eval → **~$4–$13
 ranges in `docs/DECISIONS.md`). Actual spend in this session: **$0**.
 
 ## 8. Limitations
-<!-- FILLED -->
+* **No frontier baselines** (no API keys/budget): every frontier statement is a cost estimate, not an accuracy
+  comparison. Published leaderboard numbers are not comparable (different context/retrieval/metrics).
+* CPU results use a 0.8B proxy and short budgets; they validate the pipeline and give a small-model data point,
+  not evidence about 9B or frontier performance.
+* Single seed, single run per configuration; 100-example subsets have ±~9-point CIs.
+* FinQA has ~7.7% material label noise in dev (gold `exe_ans` used as official); this caps attainable accuracy.
+* Contamination: FinQA is public since 2021; frontier and open models may have seen it. The SEC set (2026 filings)
+  is the freshest check but is templated.
+* GPU batched decoding (batch 8) can differ from batch-1 decoding on rare near-tie tokens (observed on CPU);
+  applied identically to base and SFT.
+* Synthetic data quality is only automatically checked; the human audit sheet is unreviewed.
