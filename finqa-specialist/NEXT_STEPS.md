@@ -1,10 +1,11 @@
 # NEXT_STEPS — exact commands, blockers, and the next highest-value experiment
 
-## Status (2026-11-26)
-* Done: data pipeline + leakage checks, verified evaluator, runner, tests; CPU 0.8B baseline; **9B QLoRA SFT on a
-  rented A100** with full FinQA-dev / SEC-fresh / FinanceBench evaluation (REPORT §4.1). GPU spend so far $2.57.
-* Running at time of writing: phase-B GPU job (synthetic-data ablation at 9B, Qwen3.8-27B 4-bit baseline) and the
-  CPU 0.8B SFT queue (+ synthetic ablation, 2B baseline, GRPO smoke). REPORT is updated as these land.
+## Status (2026-11-26, end of session)
+* Done: data pipeline + leakage checks, verified evaluator, runner, 84 tests; 0.8B CPU baseline + LoRA SFT; **9B QLoRA
+  SFT on a rented A100** with full FinQA-dev / SEC-fresh / FinanceBench evaluation; synthetic-data ablation at 9B;
+  Qwen3.8-27B 4-bit baseline; GRPO smoke test at 9B (throughput/VRAM/reward measured; OOM limits documented).
+* GPU spend **$4.69** of the $10 Vast credit ($5.31 left); all instances destroyed. Results: `REPORT.md`,
+  `results/summary.md`, `results/paired_comparisons.json`. Draft PR: Neil456/Neil456#2.
 
 ## Blockers (need a human decision)
 1. **Frontier baselines (GPT / Claude / Gemini) — pending.** Need API keys + a small budget (≈$1–5 per model for
@@ -13,8 +14,9 @@
 2. **Vast.ai key rotation.** The key used tonight was pasted in chat; rotate it (the user planned to). It is stored only
    in `~/.config/vastai/vast_api_key` inside this ephemeral container and is not in the repository.
 3. **Human review of synthetic data** (`docs/SYNTH_AUDIT.md`, 25 samples) before scaling synthetic data.
-4. The fine-tuned 9B adapter was not retrieved (instance destroyed after evaluation). Re-create with the command below
-   (~$1) on a host where you can keep the files (e.g. a persistent volume or push to a private HF repo).
+4. The fine-tuned 9B adapter was not retrieved (instance destroyed after evaluation; the log channel cannot carry ~200 MB).
+   Re-create with the command below (~$1) on a host where you can keep the files (persistent volume or a private HF repo,
+   which needs an HF token).
 
 ## Reproduce
 ```bash
@@ -55,8 +57,10 @@ separately. Verify exact model IDs and prices on the providers' pages on the day
 2. **Program-execution deployment**: report/serve the SFT model's executed-program answer (FinQA dev 77.7%, SEC 97.0%);
    add a fallback to the stated answer when the program fails.
 3. **Second epoch / LR sweep (1e-4 vs 2e-4) / rank 16 vs 64** on 9B (~$1 each) using `select60` for selection.
-4. **GRPO from the SFT checkpoint** with the verifiable reward (`configs/grpo_gpu_q35_9b.yaml`; vLLM colocate);
-   measure rollout throughput on 20 steps first. Target: the stated-answer arithmetic gap (raw 76.0 vs prog 77.7 on
-   FinQA, larger on FinanceBench) and remaining operation-selection errors.
+4. **GRPO from the SFT checkpoint** with the verifiable reward. The 9B smoke test measured 0.8 completions/s with HF
+   generation and OOM'd on a 40 GB A100 at micro-batch 2 on the longest prompts. Next: vLLM rollouts
+   (`use_vllm: true`), cap prompts at ~2,048 tokens, filter prompts by SFT pass rate (37% had zero reward variance),
+   checkpoint every 50 steps, 80 GB GPU or 4-bit base. Target: the stated-answer arithmetic gap (raw 76.0 vs prog 77.7
+   on FinQA; much larger on FinanceBench) and operation-selection errors.
 5. Serve with vLLM to measure real throughput and $/1k questions (current $0.10/1k is an HF batch-8 upper bound).
 6. Only after the configuration is frozen: run the FinQA **test** split once (`--final-test`).
